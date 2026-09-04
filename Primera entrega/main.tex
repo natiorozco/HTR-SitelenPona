@@ -1,0 +1,322 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\setlength {\marginparwidth }{2cm}
+\usepackage{todonotes}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+% esto puede que sea mas bien sitelen pona
+\title{Reconocimiento de caracteres manuscritos Sitelen Pona: comparación de técnicas de entrenamiento para clasificación multiclase de bajos recursos \\
+\large (Etapa 1)}
+
+\author{
+\IEEEauthorblockN{Natalia Orozco Delgado}
+\IEEEauthorblockA{2024099161 / n.orozco.1@estudiantec.cr}
+\and
+\IEEEauthorblockN{Fernando Andrés González Robles }
+\IEEEauthorblockA{2024201276 / f.gonzalez.1@estudiantec.cr}
+}
+
+\maketitle
+
+%lo hacemos al final
+\begin{abstract}
+\textcolor{red}{se hace al puro final}
+\textbf{[RESUMEN PRELIMINAR]} --- Este resumen es preliminar: describe el problema, la motivación
+y el enfoque propuesto, pero \emph{no} incorpora todavía resultados, ya que estos
+se generarán en etapas posteriores del proyecto.
+TODO: en 150--250 palabras, resumir (1) el problema —reconocimiento de
+caracteres manuscritos con 140 clases y disponibilidad limitada de datos
+por clase—, (2) por qué es un problema de clasificación multiclase extrema,
+(3) el enfoque propuesto (deep learning + estrategias de aumento y
+expansión de datos), y (4) qué brecha de la literatura se busca cubrir.
+\end{abstract}
+
+\begin{IEEEkeywords}
+handwritten character recognition, extreme multiclass classification, deep learning, data augmentation, synthetic data generation
+\end{IEEEkeywords}
+
+% =====================================================
+\section{Introducción}
+% =====================================================
+
+\subsection{Contexto y relevancia del problema}
+Actualmente, el Reconocimiento de Texto Manuscrito (HTR) representa un gran área de investigación en el \textit{deep learning}. El HTR es una clase de  Reconocimiento Óptico de Caracteres (OCR), utilizado ampliamente en la recuperación de material histórico, entrada de datos manuscritos o medidas de accesibilidad \cite{garrido-munoz_handwritten_2026}, entre otros. Aplicaciones relativamente novedosas como éstas traen consigo una serie de retos y limitaciones para conseguir los resultados esperados, entre ellos la escasa disponibilidad de grandes cantidades de datos de entrenamiento \cite{chang_data_2022}, diferencia en tamaños o estilos de escritura, conexiones entre caracteres, cantidad de caracteres e incluso la similitud de su apariencia \cite{bangla_cnn_2015}.
+
+Los obstáculos anteriormente citados se ven usualmente agravados en idiomas de bajo recurso o incluso construidos, los cuales presentan cantidades de datos más reducidas \cite{souibgui_few_2022} y menos investigaciones específicas. Un caso comparable puede ser el de los manuscritos cifrados, donde igualmente contando con pocos ejemplos, se redujo significativamente la labor manual necesaria para el entrenamiento del modelo y se alcanzaron resultados sumamente positivos \cite{souibgui_few_2022}. Se busca extender como enfoque a idiomas construidos modernos, más específicamente Toki Pona. 
+
+Toki Pona es uno de los idiomas construidos con mayor comunidad activa en el mundo, el cual fue creado por Sonja Lang en 2001 como una alternativa multipropósito y fácil de aprender. Actualmente, se ve presente en música, videos, \textit{podcasts}, literatura, entre otras \cite{tokipona_official}. Además, para su escritura fue desarrollado un sistema de escritura logográfico llamado \textit{sitelen pona}, en el que cada uno de los glifos representa una palabra en sí misma \cite{linku_dictionary}. 
+
+El caso particular del \textit{sitelen pona} lo vuelve un objeto de interés para el Reconocimiento de Texto Manuscrito; la elevada cantidad de glifos lo convierte en clasificación multiclase extrema y el hecho de que se tiene una limitada cantidad de datos de entrenamiento, impacta el planteamiento ya que se considera un caso \textit{low-resource}.
+
+
+\subsection{Pregunta de investigación}
+
+\begin{quote}
+\emph{¿Cuál de las estrategias de entrenamiento evaluadas (\textcolor{red}{acá sería bueno que pongamos las que vamos a evaluar para que quede más exacto}) produce la mayor exactitud de clasificación en un modelo de \textit{deep learning} sobre los glifos de \textit{sitelen pona}, dado un escenario de clasificación multiclase extrema con datos de entrenamiento limitados?}
+\end{quote}
+
+
+
+\subsection{Hipótesis de trabajo}
+\textcolor{red}{Depende de las que escojamos}
+
+\subsection{Objetivos y contribución esperada}
+\textcolor{red}{Sería bueno diay ir cambiando esto conforme definamos más cosas pero ahora como por lo general}
+Maximizar el rendimiento de un modelo de Reconocimiento de Texto Manuscrito para los glifos de \textit{sitelen pona}, bajo las condiciones de
+clasificación multiclase extrema y disponibilidad limitada de datos de
+entrenamiento.
+
+\begin{enumerate}
+  \item Comparar distintas técnicas de clasificación multiclase extrema para
+  determinar cuál produce el mejor desempeño en el reconocimiento de los
+  glifos de \textit{sitelen pona}.
+  \item Comparar distintas estrategias para mitigar la escasez de datos de
+  entrenamiento (\textit{low-resource}), evaluando cuál permite obtener
+  mejores resultados de clasificación en este escenario.
+\end{enumerate}
+
+Se espera aportar evidencia empírica sobre qué combinación de técnicas de
+clasificación multiclase extrema y de mitigación de bajo recurso resulta más
+efectiva para un caso real de idioma construido, extendiendo enfoques ya explorados en otros escenarios a uno no abordado previamente en la literatura revisada.
+
+\subsection{Estructura del documento}
+El resto de este documento se organiza así: la Sección~\ref{sec:related}
+presenta los trabajos relacionados en tres ejes; la Sección~\ref{sec:gaps}
+identifica las brechas de la literatura; la Sección~\ref{sec:baseline}
+establece el baseline de literatura; la Sección~\ref{sec:methodology}
+describe la metodología propuesta; la Sección~\ref{sec:trackb} presenta
+el análisis técnico específico del Track B; y la Sección~\ref{sec:ethics}
+discute consideraciones éticas preliminares.
+
+% =====================================================
+\section{Trabajos Relacionados}
+\label{sec:related}
+% =====================================================
+
+Esta revisión se organiza en tres ejes: el problema/dominio (Eje A),
+las técnicas del track (Eje B), y el dataset/entorno (Eje C).
+
+% -----------------------------------------------------
+\subsection{Eje A: El problema o dominio}
+\label{sec:ejeA}
+% -----------------------------------------------------
+
+Dada la clara necesidad de procesamiento de documentos para ser digitalizados como material computacional, surge el OCR como campo de estudio, contribuyendo a archivos digitales, recuperación de información \cite{caravani_assessing_2027} y accesibilidad \cite{garrido-munoz_handwritten_2026}. Tradicionalmente, sistemas OCR se construían de manera que su proceso era dividido en dos etapas principales: detección (localización) y reconocimiento de texto (transcripción); lo que recargaba enormemente las etapas de pre y post procesamiento. Además, eran altamente imprecisas ante texto irregular o manuscrito. Todo ello mejoró significativamente con el surgimiento del \textit{deep learning}, cuando las arquitecturas \textit{deep learning} revolucionaron la manera en la que se procesaban los datos. El pre procesamiento explícito disminuyó, siendo sustituido por \textit{data augmentation}; y posteriormente se perfeccionaron particularidades específicas con \textit{fine-tuning} \cite{caravani_assessing_2027}.
+
+Considerando el auge actual referente a los LLMs es razonable valorar su inclusión en el área investigada, LLMs con capacidad de visión se posicionan en tareas OCR como buenas alternativas más dinámicas y popularizadas que los sistemas tradicionales. Por ello, Caravani et al. \cite{caravani_assessing_2027} se dedicaron a establecer una comparación tomando en cuenta las dimensiones operativas e inclusive subdividiendo los LLMs y motores OCR tradicionales en \textit{open source} y comerciales. Para ello se evaluaron las cuatro categorías anteriormente mencionadas con dieciséis sistemas, se analizó su precisión, tiempo de procesamiento y costo. Los resultados fueron variados dependiendo del campo evaluado, específicamente para texto manuscrito relucen los LLMs multimodales por sobre los motores OCR especializados, los cuales tienen mejor desempeño en documentos impresos y estructurados. Sin embargo, como tema de exploración se menciona que en casos complejos sería beneficioso usar los LLMs como complemento a los motores clásicos, de manera que se pueda manejar el riesgo en entornos críticos \cite{caravani_assessing_2027}.
+
+El OCR como campo de investigación general puede subdividirse en Reconocimiento de Texto Impreso y Reconocimiento de Texto Manuscrito \cite{caravani_assessing_2027}. Cada uno de ellos posee particularidades únicas y aplicaciones distintas. El HTR tiene como principal reto la alta variabilidad en escrituras, y sus aplicaciones abarcan desde preservación de documentos antiguos hasta adaptaciones de accesibilidad \cite{garrido-munoz_handwritten_2026}. Mientras que trabajos como el de Caravani et al. \cite{caravani_assessing_2027} evalúan sistemas a nivel de documento completo, para entender la evolución del campo de HTR se requiere examinar el problema en distintos niveles, desde  caracteres individuales hasta documentos completos.
+
+El HTR se ha apoyado en avances del Reconocimiento Automático de Voz (ASR), que presentan similitudes como datos secuenciales, con alta variabilidad y dependencia contextual.  Garrido-Muñoz et al. \cite{garrido-munoz_handwritten_2026} estudian los aportes principales del HTR, donde la evolución del \textit{deep learning} y crecimiento en la variedad de \textit{datasets} juegan un rol fundamental para incrementar su rendimiento. Se enfocan principalmente en el proceso de transcripción, donde se presentan dos tipos principales de granularidad. El más simple es el \textit{up to line-level}, que trabaja por palabras o incluso líneas, mientras que el reconocimiento de párrafos o documentos completos, se clasifica como \textit{beyond line-level}. Con el aumento de capacidad computacional disponible, la investigación del HTR busca métodos \textit{end-to-end} que puedan sobrepasar al \textit{up to line-level} \cite{garrido-munoz_handwritten_2026}.
+
+Una vez llegado al reconocimiento más allá de líneas, emerge una nueva problemática que es el Orden de Lectura (RO), de esto depende mantener el sentido e intención del texto. Cada sistema de escritura tiene sus propias reglas de lectura. El número de direcciones de lectura necesarias aumenta con la complejidad del documento. A nivel de línea o palabra, el RO sigue una única dirección, determinada por el sistema de escritura; por ejemplo, de izquierda a derecha en textos de origen latino y de arriba a abajo en chino o japonés. A nivel de párrafos, se introduce una nueva dirección perpendicular a la anterior, la cual permite saltar entre líneas. Una tercera dimensión existe en documentos con bloques independientes e irregularmente posicionados \cite{garrido-munoz_handwritten_2026}.
+
+Garrido-Muñoz et al. \cite{garrido-munoz_handwritten_2026} también delimitan el HTR de sus campos relacionados. Lo distinguen del HTR \textit{online} (reconocimiento en tiempo real del trazo, presión y orden de los movimientos), del \textit{Scene Text Recognition} (texto en escenas naturales con ruido  entorno),  \textit{Keyword Spotting} (localización de palabras específicas), \textit{Layout Analysis} (segmentación estructural de secciones del documento), \textit{Document Understanding} (interpretación de información) y \textit{Handwritten Text Generation} (producción de imágenes realistas de texto escrito a mano desde contenido digital).
+
+Los autores concluyen que la ausencia de un marco de comparación unificado se refleja en tres problemas principales: la dependencia a un conjunto reducido de \textit{datasets}, inconsistencias en la tokenización de conjuntos de caracteres  y  reproducibilidad limitada. Además, señalan que la mayoría de los sistemas se evalúan únicamente en particiones del mismo \textit{dataset}, lo que sesga la evaluación hacia ciertos idiomas y estilos de escritura; por esa razón, se deben diversificar las evaluaciones para medir de forma más realista la capacidad de generalización de los modelos. Identifican además, que muchos sistemas dependen de grandes cantidades de datos sintéticos, lo que dificulta su adaptación cuando los datos reales disponibles son limitados \cite{garrido-munoz_handwritten_2026}.
+
+Previamente en \cite{garrido-munoz_handwritten_2026} se excluyó el reconocimiento a nivel de caracteres debido a una literatura de clasificación general ya robusta. El tema se aborda más a profundidad por Rahman et al. \cite{bangla_cnn_2015}, donde se realiza un reconocimiento de caracteres bengalíes escritos a mano utilizando una Red Neuronal Convolucional (CNN). Contaron con veinte mil muestras variadas, divididas en cincuenta clases (en ciertos casos, con diferencias mínimas entre ellas). El método consistió en normalizar las imágenes de los caracteres escritos y luego emplear la CNN como clasificador. Se utiliza precisamente porque a diferencia de los métodos tradicionales que primero extraen las características de la imagen de forma manual y luego se clasifican con métodos de Perceptrón Multicapa (MLP), la CNN se encarga de extraerlas de la imagen ya normalizada con su operación convolucional \cite{bangla_cnn_2015}.
+
+
+
+% -----------------------------------------------------
+\subsection{Eje B --- Las técnicas del track (Track B)} \label{sec:ejeB}
+% -----------------------------------------------------
+El tener \textit{datasets} con material limitado es un problema con diferentes propuestas investigadas, con el propósito de entrenar correctamente al modelo con lo que se tiene. Ly et al. \cite{ly_training_2018} proponen un modelo \textit{end-to-end} para reconocimiento de texto japonés manuscrito donde se aplica la técnica de distorsión elástica local y global. El HTR para japonés es complicado por el hecho que tienen un conjunto de caracteres de un tamaño considerable, en este caso se aplicó la distorsión local a cada caracter previo al proceso de concatenación. La diferencia entre distorsiones globales y locales radica en el momento de su aplicación, la distorsión local es aplicada previo a la concatenación a la línea (incluyendo shear, rotación, escala y traslación aleatorios) mientras que la global es aplicada después, en la línea completa (mediante rotación y escala adicionales). El proceso elevó la efectividad del modelo de 96.35\% a 98.05\% y se muestra efectivo para el nivel necesitado en casos similares a los glifos de \textit{Sitelen Pona}. Cabe destacar que esta técnica parte de patrones de caracteres reales ya existentes, introduciendo variaciones sobre datos disponibles en lugar de generar trazos completamente nuevos.
+
+Si bien muchos estudios parten de la generación de datos sintéticos, Wang et al. \cite{wang_smartexp_2025} valoran la verdadera mejora en el rendimiento de los modelos al incluirlos. En ciertas ocasiones, los aumentos son mínimos, por lo que se buscó una proporción ideal para maximizar la eficiencia real. Se rigen por el teorema de la inflación, donde la distancia entre las distribuciones real y combinada depende de la calidad de la generación sintética y de la proporción entre los datos reales y artificiales. Como era de esperarse, es determinantemente significativa la calidad del generador. De las conclusiones más relevantes es el balance que se debe tener con la \textit{augmentation} y expansión de datos, tienen una relación inversa, por lo que no se deben maximizar ambas a la vez. De ello, surge la estrategia de SmartExp con una proporción de real a sintético de 2:1 y una \textit{augmentation} débil, de tan solo 0.1. Se presentan mejoras consistentes en cinco arquitecturas distintas y sobre tres diferentes \textit{datasets}. Tomar en cuenta el ajuste de las variables estudiadas maximiza la eficiencia del modelo sin requerir esfuerzo computacional adicional. Fue trabajado bajo el generador VATr; sin embargo, resultan aplicables los ajustes expansión y \textit{augmentation} para las transformaciones a realizar en \textit{datasets} limitados.
+
+Por otra parte, la cantidad de datos no es el único factor limitante en el rendimiento de un modelo, sino también la variedad de los datos que se aborde. Chang et al. \cite{chang_data_2022} establecen que los datos de escritura pueden evaluarse desde la dimensión de contenido o de estilo. Ambos se combinan para lograr cubrir todo el espacio de la matriz de datos (espacio combinatorio de contenido y estilo). Para ello, proponen un modelo generativo controlable, el cual es capaz de generar los datos específicos que falten, en lugar de generar al azar. En el caso de texto manuscrito, puede verse como un estilo subrepresentado la cursiva y contenido subrepresentado las direcciones de correo electrónico. Su investigación se basó en HTR \textit{online}, sin embargo, el principio metodológico de buscar grupos de datos con baja presencia o representación es aplicable a múltiples entornos, incluyendo el reconocimiento \textit{offline} de caracteres aislados.
+
+Para manuscritos de bajo recurso, como alfabetos crifrados o antiguos, no se cuenta con modelos de lenguaje aptos para el entrenamiento y la anotación manual de todos los símbolos sería sumamente costoso en términos de tiempo y recurso humano. De esta manera, Souibgui et al. \cite{souibgui_few_2022} proponen un \textit{pipeline} de tres partes principales. La primera es el pre entrenamiento con símbolos genéricos de un \textit{dataset} de alfabetos variados. Posteriormente, se utiliza la técnica de \textit{few-shot}, donde dados escasos símbolos de referencia, se buscan coincidencias mediante un mecanismo de atención y matriz de similitud. Por último, se utiliza un mecanismo de entrenamiento de pseudo-etiquetado progresivo, de manera que el modelo se continúa entrenando y asignando etiquetas a los símbolos con mayor confianza, de manera que se expande el conocimiento sin trabajo manual adicional. Se obtuvieron resultados comparables con etiquetado manual completo sin la necesidad de tiempos elevados de anotación manual, aunque se ve disminuido su rendimiento con símbolos conectados entre sí. 
+
+
+
+% -----------------------------------------------------
+\subsection{Eje C --- El dataset o entorno}
+\label{sec:ejeC}
+% -----------------------------------------------------
+
+Debido a la escasa cantidad de estudios sobre el \textit{dataset} seleccionado, se evalúan casos comparables como marco de referencia. 
+Rahman et al. \cite{bangla_cnn_2015} utilizan un \textit{dataset} de alfabeto bengalí, el cual no es latino y posee símbolos distinguibles por rasgos mínimos, similar al Sitelen Pona. Tiene un tamaño moderado de datos, cuenta con veinte mil imágenes divididas en cincuenta clases obtenidas en una recolección propia. Su protocolo experimental dividió el conjunto en 17500 imágenes de entrenamiento (350 por clase), 2500 de prueba (50 por clase) para así evaluar mediante la métrica de precisión del modelo. Su resultado utilizando un CNN simple fue de 85.96\% de precisión. Como limitación se reporta la confusión de caracteres similares incluso con aproximadamente cuatrocientas muestras por clase. 
+
+
+
+
+
+
+% -----------------------------------------------------
+\subsection{Tabla comparativa de trabajos relacionados}
+% -----------------------------------------------------
+\textcolor{red}{etso no es lo que va a ser, tengo que revisar esta sugerencia con mis notas de los papers, y por que sale como abajo}
+ 
+\begin{table*}[!ht]
+\centering
+\caption{Comparación de trabajos relacionados}
+\label{tab:comparativa}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{1.6cm}p{0.4cm}p{2.6cm}p{2.1cm}p{1.3cm}p{2.7cm}p{2.9cm}}
+\toprule
+\textbf{Referencia} & \textbf{Año} & \textbf{Técnica} & \textbf{Dataset} & \textbf{Métrica} & \textbf{Resultado} & \textbf{Limitación} \\
+\midrule
+ 
+\cite{wang_smartexp_2025} & 2025 &
+Data expansion/augmentation (SmartExp) &
+IAM, CVL, GW &
+WAR / NED &
++5.6\% WAR en IAM (CRNN) &
+Depende de la calidad del generador HTG usado \\
+ 
+\cite{bangla_cnn_2015} & 2015 &
+CNN simple, sin extracción manual de features &
+Bangla propio (20K caract.) &
+Accuracy &
+85.96\% &
+Inferior a métodos con selección de características (95.84\%) \\
+ 
+\cite{garrido-munoz_handwritten_2026} & 2026 &
+Survey (heurístico $\to$ deep learning) &
+Múltiples (revisión) &
+N/A &
+N/A &
+Excluye a propósito el nivel de carácter aislado \\
+ 
+\cite{ly_training_2018} & 2018 &
+DCRN + distorsión elástica sintética &
+TUAT Kondate (japonés) &
+Accuracy carácter &
+96.35\%$\to$98.05\% &
+Depende de patrones de caracteres reales previos \\
+ 
+\cite{chang_data_2022} & 2022 &
+Síntesis controlable estilo+contenido &
+Propio, HTR \emph{online}, 6 idiomas &
+CER &
+$-$66\% CER &
+Es \emph{online} (trazo), no offline; dataset no público \\
+ 
+\cite{souibgui_few_2022} & 2022 &
+Few-shot + pseudo-etiquetado progresivo &
+Manuscritos cifrados / rúnicos &
+SER &
+0.09--0.24 &
+Decae con símbolos muy solapados/conectados \\
+ 
+\cite{caravani_assessing_2027} & 2027 &
+Benchmark OCR vs. LLM multimodal (16 sistemas) &
+SROIE, IAM, FUNSD, FOX &
+CA, WA, FCA &
+Ningún paradigma domina siempre &
+No aborda multiclase a nivel de carácter aislado \\
+ 
+\bottomrule
+\end{tabular}
+\end{table*}
+
+% =====================================================
+\section{Brechas identificadas}
+\label{sec:gaps}
+% =====================================================
+TODO: este apartado es obligatorio y es lo que distingue un estado del
+arte de un catálogo de lecturas. Para cada brecha:
+\begin{enumerate}
+  \item Nombrar la carencia concreta encontrada en la literatura.
+  \item Indicar si tu proyecto la aborda (total o parcialmente).
+  \item Reconocer explícitamente las brechas que quedan \emph{fuera} de
+  tu alcance.
+\end{enumerate}
+
+
+
+% =====================================================
+\section{Baseline de literatura}
+\label{sec:baseline}
+% =====================================================
+TODO: declarar explícitamente el mejor resultado publicado sobre tu
+dataset o sobre datasets análogos, con la métrica elegida. Ya que tu
+dataset es propio y sin literatura previa directa, este baseline debe
+construirse a partir de los datasets análogos revisados en el
+Eje~C (Sección~\ref{sec:ejeC}) 
+Señalar explícitamente qué diferencias de protocolo impedirían una
+comparación justa (partición distinta, otra métrica, subconjunto
+diferente de datos, etc.).
+
+% RECORDAR DECIRLE A FERNANDO QUE NOS REUNAMOS PARA VER QUE TECNICAS QUEREMOS COMPARAR =====================================================
+\section{Metodología propuesta}
+\label{sec:methodology}
+% =====================================================
+
+\subsection{Formalización del problema}
+TODO: formulación matemática del problema de clasificación
+\textcolor{red}{esto creo que ni aplica}
+
+\subsection{Pipeline previsto}
+TODO: diagrama/descripción del flujo -- dataset base (130--200
+ejemplos/clase) $\to$ aumento tradicional (rotación, shear, zoom) +
+expansión sintética (fuentes externas) $\to$ entrenamiento del modelo
+$\to$ evaluación.
+
+\subsection{Protocolo experimental}
+TODO: particiones (train/val/test), validación (k-fold si aplica),
+métricas elegidas y su justificación (accuracy top-1, top-k, macro-F1,
+matriz de confusión -- justificar con base en \cite{caravani_assessing_2027}
+y \cite{wang_smartexp_2025}).
+
+\subsection{Plan de baselines}
+TODO: qué baseline(s) interno(s) se van a implementar (p. ej. CNN simple
+sin augmentation) además del baseline de literatura de la
+Sección~\ref{sec:baseline}.
+
+\subsection{Riesgos identificados y mitigación}
+TODO: por ejemplo, riesgo de que la expansión sintética introduzca una
+brecha de distribución excesiva (\emph{domain gap}) -- mitigación:
+aplicar principios de balance como los de \cite{wang_smartexp_2025}.
+
+% =====================================================
+\section{Análisis técnico específico -- Track B}
+\label{sec:trackb}
+% =====================================================
+
+\subsection{Análisis del conjunto de imágenes}
+TODO: distribución de ejemplos por clase (130--200), resoluciones,
+formato (PNG), sesgos documentados (p. ej. si todos los ejemplos
+provienen de pocos escritores).
+
+\subsection{Estrategias de data augmentation}
+TODO: detallar qué técnicas se aplicarán (rotación, shear, zoom,
+distorsión elástica, fuentes externas) y con qué justificación de la
+literatura revisada (Sección~\ref{sec:ejeB}).
+
+\subsection{Preprocesamiento}
+TODO: normalización, binarización, redimensionamiento, etc.
+
+\subsection{Consideraciones de hardware y memoria}
+TODO: GPU disponible, tamaño estimado del dataset expandido, tiempo de
+entrenamiento estimado.
+
+% =====================================================
+\section{Consideraciones éticas preliminares}
+\label{sec:ethics}
+% =====================================================
+TODO: si el dataset incluye escritura de personas identificables,
+documentar riesgos de privacidad y anonimización. Si se usan fuentes
+externas con licencia, documentar cumplimiento de licencias de uso.
+
+% =====================================================
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
