@@ -215,37 +215,41 @@ autor.
 Data expansion + augmentación balanceada (SmartExp, 2:1, aug.~débil) &
 IAM, CVL, GW &
 WAR / NED &
-+5.6\% WAR en IAM (CRNN) &
+IAM: +5.6\% WAR, +2.7\% NED;
+CVL: +14.8\% WAR, +8.4\% NED;
+GW: +14.9\% WAR, +6.5\% NED (CRNN) &
 Depende de la calidad del generador HTG \\
 \addlinespace
 
 \cite{ly_training_2018} & 2018 &
 DCRN end-to-end + distorsión elástica local/global sintética &
-TUAT Kondate (japonés, $\sim$1200 clases) &
+TUAT Kondate &
 Acc.\ carácter &
-96.35\%$\to$98.05\% &
++1.7\% &
 Requiere patrones de caracteres reales previos \\
 \addlinespace
 
 \cite{chang_data_2022} & 2022 &
-Generación controlable estilo+contenido (style equalization) &
-Propio, HTR \emph{online}, 3 datasets &
-CER / WER / estudio de usuario &
-Comparable a datos reales &
+Generación controlable estilo+contenido &
+Propio, HTR \emph{online} &
+CER &
+-66\% &
 Es \emph{online} (trazo), no offline \\
 \addlinespace
 
 \cite{souibgui_few_2022} & 2022 &
 Few-shot + pseudo-etiquetado progresivo &
-Manuscritos cifrados / rúnicos &
+Manuscritos cifrados / rúnicos (Borg, Copiale, Codex Ruicus) &
 SER &
-0.09--0.24 &
+Borg: 0.24, 
+Copiale: 0.15,  
+Runicus: 0.09 (similares al manual)  &
 Decae con símbolos muy solapados/conectados \\
 \addlinespace
 
 \cite{bangla_cnn_2015} & 2015 &
 CNN simple, sin extracción manual de features &
-Bangla propio (20K caract., 50 clases) &
+Bangla propio (20 mil caracteres, 50 clases) &
 Accuracy &
 85.96\% &
 Inferior a métodos con selección de características (95.84\%) \\
@@ -253,18 +257,18 @@ Inferior a métodos con selección de características (95.84\%) \\
 
 \cite{caravani_assessing_2027} & 2027 &
 Benchmark OCR vs. LLM multimodal (16 sistemas, 4 familias) &
-SROIE, IAM, FUNSD, FOX &
+SROIE, FUNSD, IAM, FOX &
 CA, WA, NED, FCA &
-Ningún paradigma domina siempre &
+OCR comercial (más estable), LLM (manuscritos), modelos especializados (mejor eficiencia), open-source  (rentable) &
 No aborda multiclase a nivel de carácter aislado \\
 \addlinespace
 
 \cite{garrido-munoz_handwritten_2026} & 2026 &
-Survey HTR (heurístico $\to$ deep learning) &
+Survey HTR  &
 Múltiples (revisión) &
 CER / WER &
 N/A &
-Excluye a propósito el nivel de carácter aislado \\
+Excluye el nivel de carácter aislado (a propósito) \\
 \addlinespace
 
 \cite{bengio_extreme_2019} & 2019 &
