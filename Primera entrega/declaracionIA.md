@@ -1,6 +1,6 @@
 # Declaración de uso de IA: Primera entrega
 
-Utilización de Claude Sonnet 5 para las siguientes actividades dentro del Estado del arte y Metodología: 
+Utilización de Claude Sonnet 5 y Consensus AI para las siguientes actividades dentro del Estado del arte y Metodología: 
 
 - Discernimiento de papers: revisión manual inicial, valoración con ayuda del agente y decisión final propia. 
 - Formato de documento LateX: generación del esqueleto del proyecto, con revisión manual posterior de secciones y redacción de las mismas. 
