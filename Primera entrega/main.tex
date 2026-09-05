@@ -11,13 +11,22 @@
 \usepackage{hyperref}
 \setlength {\marginparwidth }{2cm}
 \usepackage{todonotes}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{placeins}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \begin{document}
 
-% esto puede que sea mas bien sitelen pona
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.1}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\floatpagefraction}{0.1}
+\setcounter{dbltopnumber}{2}
+
+
 \title{Reconocimiento de caracteres manuscritos Sitelen Pona: comparación de técnicas de entrenamiento para clasificación multiclase de bajos recursos \\
 \large (Etapa 1)}
 
@@ -33,15 +42,7 @@
 
 %lo hacemos al final
 \begin{abstract}
-\textcolor{red}{se hace al puro final}
-\textbf{[RESUMEN PRELIMINAR]} --- Este resumen es preliminar: describe el problema, la motivación
-y el enfoque propuesto, pero \emph{no} incorpora todavía resultados, ya que estos
-se generarán en etapas posteriores del proyecto.
-TODO: en 150--250 palabras, resumir (1) el problema —reconocimiento de
-caracteres manuscritos con 140 clases y disponibilidad limitada de datos
-por clase—, (2) por qué es un problema de clasificación multiclase extrema,
-(3) el enfoque propuesto (deep learning + estrategias de aumento y
-expansión de datos), y (4) qué brecha de la literatura se busca cubrir.
+El reconocimiento de texto manuscrito (HTR) enfrenta retos particulares cuando se aplica a sistemas de escritura logográficos con un número elevado de clases y escasa disponibilidad de datos de entrenamiento por clase. Este trabajo aborda el reconocimiento de glifos aislados de \textit{sitelen pona}, el sistema de escritura del idioma construido Toki Pona, donde cada uno de los aproximadamente 140 glifos representa una palabra completa del vocabulario. Dado el número de clases y la disponibilidad de apenas 100 a 150 muestras por clase, el problema se enmarca como un caso de clasificación multiclase extrema bajo condiciones \textit{low-resource}, un escenario poco explorado en la literatura de reconocimiento de caracteres aislados. Se propone comparar el desempeño de distintas arquitecturas de clasificación (una CNN simple, una CNN con \textit{transfer learning} convencional, y HCR-Net, una CNN \textit{script-independent}) combinadas con distintas estrategias de aumento y expansión de datos (aumento tradicional, distorsión elástica, y expansión sintética mediante fuentes externas), con el fin de identificar la combinación que produce la mayor exactitud de clasificación. Hasta donde se ha revisado, no existe investigación previa sobre HTR aplicado a \textit{sitelen pona}; este trabajo busca extender enfoques ya validados en otros escenarios de bajo recurso y muchas clases a un caso de idioma construido no abordado previamente en la literatura.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -53,13 +54,32 @@ handwritten character recognition, extreme multiclass classification, deep learn
 % =====================================================
 
 \subsection{Contexto y relevancia del problema}
-Actualmente, el Reconocimiento de Texto Manuscrito (HTR) representa un gran área de investigación en el \textit{deep learning}. El HTR es una clase de  Reconocimiento Óptico de Caracteres (OCR), utilizado ampliamente en la recuperación de material histórico, entrada de datos manuscritos o medidas de accesibilidad \cite{garrido-munoz_handwritten_2026}, entre otros. Aplicaciones relativamente novedosas como éstas traen consigo una serie de retos y limitaciones para conseguir los resultados esperados, entre ellos la escasa disponibilidad de grandes cantidades de datos de entrenamiento \cite{chang_data_2022}, diferencia en tamaños o estilos de escritura, conexiones entre caracteres, cantidad de caracteres e incluso la similitud de su apariencia \cite{bangla_cnn_2015}.
+El auge del \textit{deep learning} en la última década ha transformado prácticamente todas las áreas de percepción por computadora, permitiendo que tareas antes dependientes de características diseñadas manualmente sean resueltas mediante representaciones aprendidas directamente de los datos. Especialmente, reconocimiento visual o auditivo son de los campos más beneficiados en esta corriente. Dentro de este contexto, el Reconocimiento de Texto Manuscrito (HTR) representa un gran área de investigación en el \textit{deep learning}.
+
+El HTR es una clase de  Reconocimiento Óptico de Caracteres (OCR), utilizado ampliamente en la recuperación de material histórico, entrada de datos manuscritos o medidas de accesibilidad \cite{garrido-munoz_handwritten_2026}, entre otros. Aplicaciones relativamente novedosas como éstas traen consigo una serie de retos y limitaciones para conseguir los resultados esperados, entre ellos la escasa disponibilidad de grandes cantidades de datos de entrenamiento \cite{chang_data_2022}, diferencia en tamaños o estilos de escritura, conexiones entre caracteres, cantidad de caracteres e incluso la similitud de su apariencia \cite{bangla_cnn_2015}.
+
+Un reto igualmente relevante en el campo es el de la clasificación
+multiclase extrema, presente cuando el número de categorías a distinguir
+crece considerablemente. Bengio et al. \cite{bengio_extreme_2019} señalan que, en estos escenarios, los métodos estándar de clasificación se vuelven intratables en tiempo y espacio, por lo que se han propuesto arquitecturas alternativas más eficientes ante conjuntos de clases numerosos. En el ámbito específico del reconocimiento de caracteres, HCR-Net \cite{hcrnet_2024} plantea una CNN \textit{script-independent} validada en 40 conjuntos de datos de 14 idiomas distintos, mostrando que el \textit{transfer learning} parcial permite generalizar razonablemente bien incluso cuando el número de clases es elevado, aunque su propio desempeño decae en escrituras con conjuntos de caracteres muy grandes.
+
+
 
 Los obstáculos anteriormente citados se ven usualmente agravados en idiomas de bajo recurso o incluso construidos, los cuales presentan cantidades de datos más reducidas \cite{souibgui_few_2022} y menos investigaciones específicas. Un caso comparable puede ser el de los manuscritos cifrados, donde igualmente contando con pocos ejemplos, se redujo significativamente la labor manual necesaria para el entrenamiento del modelo y se alcanzaron resultados sumamente positivos \cite{souibgui_few_2022}. Se busca extender como enfoque a idiomas construidos modernos, más específicamente Toki Pona.
 
-Toki Pona es uno de los idiomas construidos con mayor comunidad activa en el mundo, el cual fue creado por Sonja Lang en 2001 como una alternativa multipropósito y fácil de aprender. Actualmente, se ve presente en música, videos, \textit{podcasts}, literatura, entre otras \cite{tokipona_official}. Además, para su escritura fue desarrollado un sistema de escritura logográfico llamado \textit{sitelen pona}, en el que cada uno de los glifos representa una palabra en sí misma \cite{linku_dictionary}.
+Toki Pona es uno de los idiomas construidos con mayor comunidad activa en el mundo, el cual fue creado por Sonja Lang en 2001 como una alternativa multipropósito y fácil de aprender. Actualmente, se ve presente en música, videos, \textit{podcasts}, literatura, entre otras \cite{tokipona_official}.Su vocabulario oficial se compone de un núcleo reducido de palabras. En la edición original del libro se propusieron 120 palabras, este fue ampliado posteriormente por adiciones reconocidas por la comunidad. Sin embargo, reflejando la
+filosofía minimalista con la que fue diseñado, sigue sin alcanzar las 150 palabras oficiales \cite{linku_dictionary}. Además, para su escritura fue desarrollado un sistema de escritura logográfico llamado \textit{sitelen pona}, en el que cada uno de los glifos representa una palabra completa del vocabulario, en lugar de un fonema o letra como ocurre en los alfabetos convencionales \cite{linku_dictionary} (Fig.~\ref{fig:sitelen_pona_glyphs}).
+
+
 
 El caso particular del \textit{sitelen pona} lo vuelve un objeto de interés para el Reconocimiento de Texto Manuscrito; la elevada cantidad de glifos (del orden de 140 clases) lo convierte en un problema de clasificación multiclase extrema \cite{bengio_extreme_2019} y el hecho de que se tiene una limitada cantidad de datos de entrenamiento, impacta el planteamiento ya que se considera un caso \textit{low-resource}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{Toki_pona_sitelen_pona.png}
+\caption{Repertorio de glifos de \textit{sitelen pona}. Imagen: Wikimedia
+Commons, licencia CC BY-SA 4.0.}
+\label{fig:sitelen_pona_glyphs}
+\end{figure}
 
 
 \subsection{Pregunta de investigación}
@@ -85,17 +105,11 @@ clasificación multiclase extrema y disponibilidad limitada de datos de
 entrenamiento.
 
 \begin{enumerate}
-  \item Comparar distintas técnicas de clasificación multiclase extrema para
-  determinar cuál produce el mejor desempeño en el reconocimiento de los
-  glifos de \textit{sitelen pona}.
-  \item Comparar distintas estrategias para mitigar la escasez de datos de
-  entrenamiento (\textit{low-resource}), evaluando cuál permite obtener
-  mejores resultados de clasificación en este escenario.
+   \item Comparar el desempeño de distintas arquitecturas de clasificación (una CNN simple, una CNN con \textit{transfer learning} convencional, y HCR-Net) sobre los glifos de \textit{sitelen pona}, en un escenario de clasificación multiclase extrema.
+   \item Comparar distintas estrategias de aumento y expansión de datos (aumento tradicional, distorsión elástica, y expansión sintética con fuentes externas) para mitigar la escasez de datos de entrenamiento (\textit{low-resource}), evaluando su efecto sobre las arquitecturas anteriores.
 \end{enumerate}
 
-Se espera aportar evidencia empírica sobre qué combinación de técnicas de
-clasificación multiclase extrema y de mitigación de bajo recurso resulta más
-efectiva para un caso real de idioma construido, extendiendo enfoques ya explorados en otros escenarios a uno no abordado previamente en la literatura revisada.
+Se espera aportar evidencia empírica sobre qué combinación de arquitectura de clasificación y estrategia de mitigación de bajo recurso resulta más efectiva para un caso real de idioma construido, extendiendo enfoques ya explorados en otros escenarios a uno no abordado previamente en la literatura revisada.
 
 \subsection{Estructura del documento}
 El resto de este documento se organiza así: la Sección~\ref{sec:related}
@@ -166,6 +180,10 @@ Para manuscritos de bajo recurso, como alfabetos crifrados o antiguos, no se cue
 Debido a la escasa cantidad de estudios sobre el \textit{dataset} seleccionado, se evalúan casos comparables como marco de referencia. 
 Rahman et al. \cite{bangla_cnn_2015} utilizan un \textit{dataset} de alfabeto bengalí, el cual no es latino y posee símbolos distinguibles por rasgos mínimos, similar al Sitelen Pona. Tiene un tamaño moderado de datos, cuenta con veinte mil imágenes divididas en cincuenta clases obtenidas en una recolección propia. Su protocolo experimental dividió el conjunto en 17500 imágenes de entrenamiento (350 por clase), 2500 de prueba (50 por clase) para así evaluar mediante la métrica de precisión del modelo. Su resultado utilizando un CNN simple fue de 85.96\% de precisión. Como limitación se reporta la confusión de caracteres similares incluso con aproximadamente cuatrocientas muestras por clase.
 
+De manera similar, Souibgui et al. \cite{souibgui_few_2022} realizan HTR para alfabetos cifrados o en desuso (Borg, Copiale y Codex Runicus); similar al Sitelen Pona, no se cuenta con literatura previa ni modelos de lenguaje de apoyo. Los tamaños de estos \textit{datasets} son considerablemente menores al del Sitelen Pona: entre 24 y 78 clases, con un total de 1{,}913 a
+7{,}197 símbolos anotados según el manuscrito. Compararon distintos escenarios de supervisión, desde métodos no supervisados hasta el etiquetado manual completo, pasando por su propio método de \textit{few-shot} con solo 5 ejemplos por símbolo, evaluando el desempeño mediante la Tasa de
+Error de Símbolo. Su método alcanzó un SER de 0.09 a 0.24 según el manuscrito, resultado comparable al obtenido con etiquetado manual completo (0.05 a 0.21). Como limitación, reportan una disminución en el rendimiento para alfabetos con símbolos conectados o solapados entre sí.
+
 Con un propósito comparable, Chacko et al. \cite{chacko_wavelet_2012} recolectaron 9000 imágenes Malayalam de 30 clases escritas por 300 personas diferentes (2:1 entrenamiento/prueba), un esquema de varios escritores que también es habitual en HCR-Net \cite{hcrnet_2024}, cuyos benchmarks de Gurmukhi incluyen desde un único escritor con 100 muestras por clase (HWRGurmukhi\_1.1, 99.31\% de exactitud) hasta 100 escritores con una muestra por clase (HWRGurmukhi\_1.3, 96.53\%), una condición aún más restrictiva por escritor que la de nuestro dataset.
 
 El caso del urdu de Aarif y Poruran \cite{ocrnets_2020} es directamente relevante por dos razones: utilizan el dataset IFHCDB (uno de los más grandes para escritura cursiva) y \emph{además} construyen un dataset auxiliar renderizando las mismas clases con distintas fuentes y tamaños para medir la generalización de OCR-AlexNet, mostrando que la exactitud depende sensiblemente del número de imágenes, de su resolución y de los pesos de la red. Este mismo procedimiento (renderizado con fuentes) es el que aquí se contempla como expansión sintética.
@@ -188,7 +206,7 @@ autor.
 \label{tab:comparativa}
 \setlength{\tabcolsep}{3pt}
 \small
-\begin{tabular}{p{3.1cm}p{0.5cm}p{3.1cm}p{2.7cm}p{1.6cm}p{2.5cm}p{3.0cm}}
+\begin{tabular}{p{2.0cm}p{1.6cm}p{3.1cm}p{2.7cm}p{1.6cm}p{2.5cm}p{3.0cm}}
 \toprule
 \textbf{Referencia} & \textbf{Año} & \textbf{Técnica} & \textbf{Dataset} & \textbf{Métrica} & \textbf{Resultado} & \textbf{Limitación} \\
 \midrule
@@ -307,6 +325,8 @@ Inferencia lenta; escenarios de fondo complejos \\
 \end{tabular}
 \end{table*}
 
+
+
 % =====================================================
 \section{Brechas identificadas}
 \label{sec:gaps}
@@ -350,6 +370,7 @@ concretas:
   cuidadosos \cite{wang_smartexp_2025}. El proyecto la aborda parcialmente,
   aplicando principios de balance de \cite{wang_smartexp_2025} y aumentando
   los renderizados con distorsiones no lineales.
+  \item \textbf{Síntesis dirigida por contenido/estilo no explorada en HCR offline aislado.} El principio de generación dirigida a huecos específicos de contenido y estilo, propuesto por \cite{chang_data_2022}, se ha validado solo en HTR \textit{online} a nivel de secuencia; su aplicación a generación offline de caracteres aislados permanece sin explorar. El proyecto la aborda parcialmente al aplicar expansión sintética con fuentes externas, aunque sin implementar el modelo generativo controlable completo.
   \item \textbf{Brechas fuera del alcance.} No se aborda la transcripción a
   nivel de línea o documento (lectura de \textit{lines} completas,
   \emph{beyond line-level}), la generación sintética por modelos generativos
@@ -377,7 +398,7 @@ referencia de una CNN simple sin aumentación, la de Rahman et al.
 clase. Por lo tanto, se declara como baseline de literatura a HCR-Net,
 reproducido sobre nuestro propio dataset, y como cota inferior de referencia
 la exactitud de la CNN simple \cite{bangla_cnn_2015} y del descriptor
-geométrico de \cite{chacko_wavelet_2012} (95.59\% sobre 30 clases).
+geométrico de \cite{chacko_wavelet_2012} (95.59\% sobre 30 clases). Como referencia adicional para escenarios de alfabetos sin literatura previa, Souibgui et al. \cite{souibgui_few_2022} reportan un SER de 0.09 a 0.24 sobre alfabetos cifrados y rúnicos con muy pocos ejemplos por símbolo, aunque la métrica no es directamente comparable con la exactitud reportada por los demás baselines.
 
 Debe señalarse explícitamente que una comparación numérica directa con estos
 valores no sería justa, por diferencias de protocolo: (i) las clases son
@@ -550,6 +571,7 @@ siguientes técnicas:
   logográficos el volteo puede invertir la direccionalidad del glifo y
   cambiar su significado, por lo que se omite, al igual que el volteo
   vertical, siguiendo las advertencias de \cite{hcrnet_2024}.
+  \item \textbf{Generación dirigida por contenido/estilo subrepresentado.} Siguiendo el principio metodológico de \cite{chang_data_2022}, se identificarán qué glifos o variantes están subrepresentados en el dataset base, priorizando la expansión sintética específicamente hacia esos huecos en lugar de aumentar todas las clases por igual.
 \end{itemize}
 
 \subsection{Preprocesamiento}

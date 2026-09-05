@@ -8,3 +8,6 @@ Utilización de Claude Sonnet 5 y Consensus AI para las siguientes actividades d
 - Revisión gramatical: cambios gramaticales según correspondieran. 
 - Sugerencias de cambios en la redacción: valoración de los cambios y edición, si aplica. 
 - Verificación de datos: confirmación de afirmaciones mediante búsqueda web
+- Redacción de abstract: redacción preliminar de abstract basado en el resto del documento ya terminado, revisión manual posterior.
+- Ayudas para acomodo de figuras: revisión visual posterior.
+- Extracción de ideas principales de un texto: guía para escritura manual.
