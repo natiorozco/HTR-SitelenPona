@@ -11,3 +11,5 @@ Utilización de Claude Sonnet 5 y Consensus AI para las siguientes actividades d
 - Redacción de abstract: redacción preliminar de abstract basado en el resto del documento ya terminado, revisión manual posterior.
 - Ayudas para acomodo de figuras: revisión visual posterior.
 - Extracción de ideas principales de un texto: guía para escritura manual y tabla comparativa. Se revisa contra el paper. 
+- Generación de imagen comparativa de data augmentation: revisión visual posterior.
+- Revisión final contra requerimientos: posterior a revisión manual. 

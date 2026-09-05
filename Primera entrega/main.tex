@@ -20,12 +20,6 @@
 
 \begin{document}
 
-\renewcommand{\dbltopfraction}{0.95}
-\renewcommand{\dblfloatpagefraction}{0.1}
-\renewcommand{\topfraction}{0.95}
-\renewcommand{\floatpagefraction}{0.1}
-\setcounter{dbltopnumber}{2}
-
 
 \title{Reconocimiento de caracteres manuscritos Sitelen Pona: comparación de técnicas de entrenamiento para clasificación multiclase de bajos recursos \\
 \large (Etapa 1)}
@@ -40,7 +34,7 @@
 
 \maketitle
 
-%lo hacemos al final
+
 \begin{abstract}
 El reconocimiento de texto manuscrito (HTR) enfrenta retos particulares cuando se aplica a sistemas de escritura logográficos con un número elevado de clases y escasa disponibilidad de datos de entrenamiento por clase. Este trabajo aborda el reconocimiento de glifos aislados de \textit{sitelen pona}, el sistema de escritura del idioma construido Toki Pona, donde cada uno de los aproximadamente 140 glifos representa una palabra completa del vocabulario. Dado el número de clases y la disponibilidad de apenas 100 a 150 muestras por clase, el problema se enmarca como un caso de clasificación multiclase extrema bajo condiciones \textit{low-resource}, un escenario poco explorado en la literatura de reconocimiento de caracteres aislados. Se propone comparar el desempeño de distintas arquitecturas de clasificación (una CNN simple, una CNN con \textit{transfer learning} convencional, y HCR-Net, una CNN \textit{script-independent}) combinadas con distintas estrategias de aumento y expansión de datos (aumento tradicional, distorsión elástica, y expansión sintética mediante fuentes externas), con el fin de identificar la combinación que produce la mayor exactitud de clasificación. Hasta donde se ha revisado, no existe investigación previa sobre HTR aplicado a \textit{sitelen pona}; este trabajo busca extender enfoques ya validados en otros escenarios de bajo recurso y muchas clases a un caso de idioma construido no abordado previamente en la literatura.
 \end{abstract}
@@ -61,7 +55,6 @@ El HTR es una clase de  Reconocimiento Óptico de Caracteres (OCR), utilizado am
 Un reto igualmente relevante en el campo es el de la clasificación
 multiclase extrema, presente cuando el número de categorías a distinguir
 crece considerablemente. Bengio et al. \cite{bengio_extreme_2019} señalan que, en estos escenarios, los métodos estándar de clasificación se vuelven intratables en tiempo y espacio, por lo que se han propuesto arquitecturas alternativas más eficientes ante conjuntos de clases numerosos. En el ámbito específico del reconocimiento de caracteres, HCR-Net \cite{hcrnet_2024} plantea una CNN \textit{script-independent} validada en 40 conjuntos de datos de 14 idiomas distintos, mostrando que el \textit{transfer learning} parcial permite generalizar razonablemente bien incluso cuando el número de clases es elevado, aunque su propio desempeño decae en escrituras con conjuntos de caracteres muy grandes.
-
 
 
 Los obstáculos anteriormente citados se ven usualmente agravados en idiomas de bajo recurso o incluso construidos, los cuales presentan cantidades de datos más reducidas \cite{souibgui_few_2022} y menos investigaciones específicas. Un caso comparable puede ser el de los manuscritos cifrados, donde igualmente contando con pocos ejemplos, se redujo significativamente la labor manual necesaria para el entrenamiento del modelo y se alcanzaron resultados sumamente positivos \cite{souibgui_few_2022}. Se busca extender como enfoque a idiomas construidos modernos, más específicamente Toki Pona.
@@ -85,12 +78,12 @@ Commons, licencia CC BY-SA 4.0.}
 \subsection{Pregunta de investigación}
 
 \begin{quote}
-\emph{¿Cuál de las estrategias de entrenamiento evaluadas — una CNN simple
+\emph{¿Cuál de las estrategias de entrenamiento evaluadas: una CNN simple
 entrenada de cero sin aumento de datos (baseline interno), una CNN simple
 con aumento de datos tradicional (rotación, shear, zoom y distorsión
 elástica), una CNN con transfer learning, y HCR-Net, una CNN
 \textit{script-independent} basada en transfer learning parcial y
-aumentación geométrica \cite{hcrnet_2024} — produce la mayor exactitud de
+aumentación geométrica \cite{hcrnet_2024}; produce la mayor exactitud de
 clasificación en un modelo de \textit{deep learning} sobre los glifos de
 \textit{sitelen pona}, dado un escenario de clasificación multiclase
 extrema con datos de entrenamiento limitados?}
@@ -100,13 +93,31 @@ extrema con datos de entrenamiento limitados?}
 Se plantean dos hipótesis complementarias. Primero, se espera que HCR-Net \cite{hcrnet_2024}, por su diseño \textit{script-independent}, su entrenamiento en dos fases con transfer learning parcial de VGG16 y su validación en múltiples conjuntos de escritura ``triviales'' (pocas muestras por clase), supere a la CNN simple con o sin aumento de datos y a la CNN con transfer learning convencional. Segundo, siguiendo el mecanismo de balance observado por Wang et al. \cite{wang_smartexp_2025}, se espera que la combinación \emph{balanceada} de aumento de datos débil y expansión sintética (proporción real--sintético del orden de 2:1) supere a la aplicación independiente y agresiva de cualquiera de las dos estrategias.
 
 \subsection{Objetivos y contribución esperada}
-Maximizar el rendimiento de un modelo de Reconocimiento de Texto Manuscrito para los glifos de \textit{sitelen pona}, bajo las condiciones de
+
+
+\textbf{Objetivo general}
+
+Maximizar el rendimiento de un modelo de Reconocimiento de Texto Manuscrito
+para los glifos de \textit{sitelen pona}, bajo las condiciones de
 clasificación multiclase extrema y disponibilidad limitada de datos de
 entrenamiento.
 
+\textbf{Objetivos específicos}
+
 \begin{enumerate}
-   \item Comparar el desempeño de distintas arquitecturas de clasificación (una CNN simple, una CNN con \textit{transfer learning} convencional, y HCR-Net) sobre los glifos de \textit{sitelen pona}, en un escenario de clasificación multiclase extrema.
-   \item Comparar distintas estrategias de aumento y expansión de datos (aumento tradicional, distorsión elástica, y expansión sintética con fuentes externas) para mitigar la escasez de datos de entrenamiento (\textit{low-resource}), evaluando su efecto sobre las arquitecturas anteriores.
+  \item Comparar el desempeño de distintas arquitecturas de clasificación
+  (una CNN simple, una CNN con \textit{transfer learning} convencional, y
+  HCR-Net) sobre los glifos de \textit{sitelen pona}, en un escenario de
+  clasificación multiclase extrema.
+  \item Comparar distintas estrategias de aumento y expansión de datos
+  (aumento tradicional, distorsión elástica, y expansión sintética con
+  fuentes externas) para mitigar la escasez de datos de entrenamiento, evaluando su efecto sobre las arquitecturas
+  anteriores.
+  \item Analizar el costo de esfuerzo manual asociado a cada estrategia de
+  mitigación de bajo recurso evaluada, considerando el tiempo de
+  preparación de datos, la necesidad de anotación adicional y la
+  complejidad de implementación, con el fin de valorar no solo la
+  exactitud alcanzada sino también su viabilidad práctica.
 \end{enumerate}
 
 Se espera aportar evidencia empírica sobre qué combinación de arquitectura de clasificación y estrategia de mitigación de bajo recurso resulta más efectiva para un caso real de idioma construido, extendiendo enfoques ya explorados en otros escenarios a uno no abordado previamente en la literatura revisada.
@@ -154,7 +165,7 @@ La alternativa a las características diseñadas a mano no siempre fue el \texti
 
 
 % -----------------------------------------------------
-\subsection{Eje B --- Las técnicas del track (Track B)} \label{sec:ejeB}
+\subsection{Eje B: Las técnicas del track (Track B)} \label{sec:ejeB}
 % -----------------------------------------------------
 El tener \textit{datasets} con material limitado es un problema con diferentes propuestas investigadas, con el propósito de entrenar correctamente al modelo con lo que se tiene. Ly et al. \cite{ly_training_2018} proponen un modelo \textit{end-to-end} para reconocimiento de texto japonés manuscrito donde se aplica la técnica de distorsión elástica local y global. El HTR para japonés es complicado por el hecho que tienen un conjunto de caracteres de un tamaño considerable, en este caso se aplicó la distorsión local a cada caracter previo al proceso de concatenación. La diferencia entre distorsiones globales y locales radica en el momento de su aplicación, la distorsión local es aplicada previo a la concatenación a la línea (incluyendo shear, rotación, escala y traslación aleatorios) mientras que la global es aplicada después, en la línea completa (mediante rotación y escala adicionales). El proceso elevó la efectividad del modelo de 96.35\% a 98.05\% y se muestra efectivo para el nivel necesitado en casos similares a los glifos de \textit{Sitelen Pona}. Cabe destacar que esta técnica parte de patrones de caracteres reales ya existentes, introduciendo variaciones sobre datos disponibles en lugar de generar trazos completamente nuevos.
 
@@ -164,7 +175,7 @@ El reconocimiento de caracteres sobre escrituras de muchos símbolos no se limit
 
 Otra vía para conjuntos limitados es el \textit{transfer learning}. Aarif y Poruran \cite{ocrnets_2020} adaptan variantes de AlexNet y GoogleNet pre-entrenadas en ImageNet mediante \textit{fine-tuning} de las capas finales (y congelamiento de las iniciales) para el reconocimiento de caracteres manuscritos urdu sobre el dataset IFHCDB, alcanzando 96.3\% de éxito medio con OCR-AlexNet; como verificación de generalización construyeron un dataset adicional renderizado con distintas fuentes y tamaños, de modo que el modelo no solo se evaluara con el estilo de escritura del dataset original. En la misma dirección, HCR-Net \cite{hcrnet_2024} propone la primera CNN \textit{script-independent} para HCR offline: inicializa parcialmente sus capas bajas y medias con pesos pre-entrenados de VGG16 (hasta \texttt{block4\_conv2}), los congela en una primera fase de entrenamiento y reentrena todas las capas en una segunda fase. Gracias al transfer learning parcial y a la aumentación de imágenes, HCR-Net converge en pocas épocas, reduce 34\% los parámetros entrenables frente a VGG16 y logra hasta un 99\% de su desempeño final en la primera época, incluso en conjuntos ``triviales'' de pocas muestras por clase; fue validado en 40 datasets de 14 idiomas, estableciendo 26 nuevos benchmarks. Su segunda fase resulta costosa y su rendimiento decae en lenguas con conjuntos de caracteres muy grandes, como el que aquí se plantea.
 
-En cuanto a las transformaciones de datos, la revisión de Alomar et al. \cite{alomar_da_2023} clasifica la aumentación según su propósito (tamaño \emph{vs.} diversidad) y reporta que, para tareas de pequeño tamaño y escala de grises, las transformaciones geométricas superan a las de color; además proponen la \emph{random local rotation} (RLR), una estrategia sin parámetros que rota regiones circulares locales para evitar los bordes irregulares que introduce la rotación global tradicional, y que en sus experimentos superó consistentemente a la rotación clásica en clasificación y segmentación.
+En cuanto a las transformaciones de datos, la revisión de Alomar et al. \cite{alomar_da_2023} clasifica la aumentación según su propósito (tamaño vs. diversidad) y reporta que, para tareas de pequeño tamaño y escala de grises, las transformaciones geométricas superan a las de color; además proponen la \emph{random local rotation} (RLR), una estrategia sin parámetros que rota regiones circulares locales para evitar los bordes irregulares que introduce la rotación global tradicional, y que en sus experimentos superó consistentemente a la rotación clásica en clasificación y segmentación.
 
 Por otra parte, la cantidad de datos no es el único factor limitante en el rendimiento de un modelo, sino también la variedad de los datos que se aborde. Chang et al. \cite{chang_data_2022} establecen que los datos de escritura pueden evaluarse desde la dimensión de contenido o de estilo. Ambos se combinan para lograr cubrir todo el espacio de la matriz de datos (espacio combinatorio de contenido y estilo). Para ello, proponen un modelo generativo controlable, el cual es capaz de generar los datos específicos que falten, en lugar de generar al azar. En el caso de texto manuscrito, puede verse como un estilo subrepresentado la cursiva y contenido subrepresentado las direcciones de correo electrónico. Su investigación se basó en HTR \textit{online}, sin embargo, el principio metodológico de buscar grupos de datos con baja presencia o representación es aplicable a múltiples entornos, incluyendo el reconocimiento \textit{offline} de caracteres aislados.
 
@@ -173,7 +184,7 @@ Para manuscritos de bajo recurso, como alfabetos crifrados o antiguos, no se cue
 
 
 % -----------------------------------------------------
-\subsection{Eje C --- El dataset o entorno}
+\subsection{Eje C: El dataset o entorno}
 \label{sec:ejeC}
 % -----------------------------------------------------
 
@@ -186,7 +197,7 @@ Error de Símbolo. Su método alcanzó un SER de 0.09 a 0.24 según el manuscrit
 
 Con un propósito comparable, Chacko et al. \cite{chacko_wavelet_2012} recolectaron 9000 imágenes Malayalam de 30 clases escritas por 300 personas diferentes (2:1 entrenamiento/prueba), un esquema de varios escritores que también es habitual en HCR-Net \cite{hcrnet_2024}, cuyos benchmarks de Gurmukhi incluyen desde un único escritor con 100 muestras por clase (HWRGurmukhi\_1.1, 99.31\% de exactitud) hasta 100 escritores con una muestra por clase (HWRGurmukhi\_1.3, 96.53\%), una condición aún más restrictiva por escritor que la de nuestro dataset.
 
-El caso del urdu de Aarif y Poruran \cite{ocrnets_2020} es directamente relevante por dos razones: utilizan el dataset IFHCDB (uno de los más grandes para escritura cursiva) y \emph{además} construyen un dataset auxiliar renderizando las mismas clases con distintas fuentes y tamaños para medir la generalización de OCR-AlexNet, mostrando que la exactitud depende sensiblemente del número de imágenes, de su resolución y de los pesos de la red. Este mismo procedimiento (renderizado con fuentes) es el que aquí se contempla como expansión sintética.
+El caso del urdu de Aarif y Poruran \cite{ocrnets_2020} es directamente relevante por dos razones: utilizan el dataset IFHCDB (uno de los más grandes para escritura cursiva) y además construyen un dataset auxiliar renderizando las mismas clases con distintas fuentes y tamaños para medir la generalización de OCR-AlexNet, mostrando que la exactitud depende sensiblemente del número de imágenes, de su resolución y de los pesos de la red. Este mismo procedimiento (renderizado con fuentes) es el que aquí se contempla como expansión sintética.
 
 Finalmente, los idiomas de bajo recurso con sistemas de escritura complejos y fondos poco controlados, como el mongol, han motivado pipelines híbridos: Qi et al. \cite{pr2_2025} combinan Mask-RCNN para la detección de regiones de texto, \textit{prompt tuning} de un modelo pre-entrenado y un post-procesador RoBERTa para alcanzar 91.2\% de exactitud de carácter en el dataset MLWS2021; el resultado ilustra que, incluso con arquitecturas modernas, el reconocimiento de escrituras de bajo recurso sigue siendo un reto abierto, y que la integración de módulos especializados (detección, reconocimiento, corrección) es una vía activa de investigación.
 
@@ -360,7 +371,7 @@ concretas:
   con $<$150 muestras por clase, y se mide el efecto de la escala.
   \item \textbf{Variantes alográficas y alta variabilidad intra-clase.}
   Caracteres como \textit{sewi} presentan alomorfos sin rasgos visuales
-  compartidos (glifo histórico \emph{vs.} moderno), y \textit{jaki} es por
+  compartidos (glifo histórico vs. moderno), y \textit{jaki} es por
   diseño un ``garabato'' con varianza intra-clase prácticamente no
   acotada; ningún trabajo revisado modela estas situaciones en HCR. El
   proyecto la aborda mediante subclases internas que se fusionan
@@ -376,7 +387,7 @@ concretas:
   los renderizados con distorsiones no lineales.
   \item \textbf{Síntesis dirigida por contenido/estilo no explorada en HCR offline aislado.} El principio de generación dirigida a huecos específicos de contenido y estilo, propuesto por \cite{chang_data_2022}, se ha validado solo en HTR \textit{online} a nivel de secuencia; su aplicación a generación offline de caracteres aislados permanece sin explorar. El proyecto la aborda parcialmente al aplicar expansión sintética con fuentes externas, aunque sin implementar el modelo generativo controlable completo.
   \item \textbf{Brechas fuera del alcance.} No se aborda la transcripción a
-  nivel de línea o documento (lectura de \textit{lines} completas,
+  nivel de línea o documento (lectura de líneas completas,
   \emph{beyond line-level}), la generación sintética por modelos generativos
   (GAN/HTG) como SLOGAN o VATr, la clasificación multi-etiqueta, ni la
   competencia con LLMs multimodales evaluada por Caravani et al.
@@ -410,7 +421,8 @@ distintas (30--56 en los datasets análogos \emph{vs.} $\sim$140 en
 \textit{sitelen pona}); (ii) el número de muestras por clase es mayor en los
 datasets análogos (100--400 \emph{vs.} $\sim$100--150); (iii) la partición es
 de 80:20 distribución aleatoria en \cite{hcrnet_2024}, mientras que aquí se
-planea una partición estratificada y disjunta por escritor; y (iv) la
+planea una partición estratificada por clase, sin disjunción por escritor debido a que el
+\textit{dataset} público utilizado no incluye dicho metadato; y (iv) la
 resolución de entrada (32$\times$32 en HCR-Net) y las condiciones de ruido
 del fondo no coinciden. Por ello, la comparación justa se establece contra
 los baselines internos de la Sección~\ref{sec:methodology}, entrenados con la
@@ -462,7 +474,9 @@ El conjunto se particionará en 70\% entrenamiento/15\% validación/15\% prueba
 mediante muestreo estratificado por clase; cuando se cuente con la identidad
 del escritor, las particiones se harán disjuntas por escritor para evitar
 fuga de estilo y medir la generalización realista, como recomienda
-\cite{garrido-munoz_handwritten_2026}. Cada configuración se entrenará 5
+\cite{garrido-munoz_handwritten_2026}; el \textit{dataset} público
+utilizado en este proyecto no incluye dicha información, por lo que se
+aplicará una partición estratificada por clase. Cada configuración se entrenará 5
 veces y se reportará la media y desviación estándar de las métricas sobre la
 partición de prueba, reportando la exactitud de la última época (no la mejor)
 como recomiendan \cite{hcrnet_2024}.
@@ -489,7 +503,7 @@ partición, preprocesamiento y métricas:
   shear, zoom, traslación y distorsión elástica), para aislar el efecto del
   aumento sobre la misma arquitectura.
   \item \textbf{CNN con transfer learning} (fine-tuning de una red
-  pre-entrenada en ImageNet, p.\ ej.\ VGG16 completo), como ha hecho
+  pre-entrenada en ImageNet), como ha hecho
   \cite{ocrnets_2020} para urdu.
   \item \textbf{HCR-Net} \cite{hcrnet_2024} como baseline de literatura y
   técnica principal.
@@ -504,17 +518,16 @@ ciones:
   \item \textbf{Domain gap por expansión sintética.} El renderizado con
   fuentes introduce una brecha de distribución con la escritura real
   \cite{garrido-munoz_handwritten_2026}. \emph{Mitigación:} aplicar los
-  principios de balance de \cite{wang_smartexp_2025} (proporción real--sinté-
-  tico del orden de 2:1 y aumentación débil), y aplicar distorsiones
+  principios de balance de \cite{wang_smartexp_2025} (proporción real sintético del orden de 2:1 y aumentación débil), y aplicar distorsiones
   elásticas y ruido sobre los renderizados para acercar el dominio sintético
   al manuscrito, como en \cite{ly_training_2018, souibgui_few_2022}.
   \item \textbf{Variantes alográficas (e.g., \emph{sewi}).} Un mismo glifo
   puede tener dos variantes sin rasgos compartidos; una única clase forzaría
   al clasificador a un espacio de representación multimodal.
   \emph{Mitigación:} modelar internamente cada variante como una
-  \textbf{subclase separada} en la cabeza de clasificación, y fusionar
-  programáticamente las subclases en una única clase a la salida (mapeo
-  subclase$\to$etiqueta). Esto permite al clasificador separar los modos
+  subclase separada en la cabeza de clasificación, y fusionar
+  programáticamente las subclases en una única clase a la salida (mapeo de
+  subclase a etiqueta). Esto permite al clasificador separar los modos
   visuales sin violar la semántica del problema.
   \item \textbf{Alta varianza intra-clase de \emph{jaki}.} Por definición,
   \textit{jaki} es ``cualquier garabato'', por lo que su varianza no está
@@ -545,10 +558,21 @@ en el conjunto base. La resolución de las imágenes no es fija a priori y será
 normalizada en el preprocesamiento. Como sesgo documentado, se anticipa que
 las muestras provienen de un número reducido de escritores (posiblemente muy
 pocas personas), lo que concentra el estilo de escritura y puede inflar el
-rendimiento si no se parte de forma disjunta por escritor; por ello la
-validación incluye una partición disjunta por escritor y un análisis de la
-distribución de ejemplos por clase, reportando los glifos con menos de 100
-muestras.
+rendimiento si no se controla adecuadamente; si se contara con la identidad del
+escritor, se aplicaría una partición disjunta para evitar este efecto,
+aunque el \textit{dataset} público utilizado no incluye dicho metadato,
+por lo que la validación se basa en partición estratificada por clase y
+en el análisis de la distribución de ejemplos por clase.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{augmentation_demo_v2.png}
+\caption{Transformaciones de aumento de datos aplicadas sobre un glifo del
+\textit{dataset} propio: rotación, \textit{shear}, \textit{zoom},
+traslación y distorsión elástica \cite{ly_training_2018}.}
+\label{fig:augmentation_demo}
+\end{figure*}
+
 
 \subsection{Estrategias de data augmentation}
 Con base en la literatura revisada (Sección~\ref{sec:ejeB}), se aplicarán las
@@ -559,12 +583,15 @@ siguientes técnicas:
   siguiendo la configuración validada de HCR-Net \cite{hcrnet_2024}. Se
   evaluará la alternativa \emph{random local rotation} (RLR) de
   \cite{alomar_da_2023} para evitar los bordes irregulares de la rotación
-  global.
+  global. Como referencia, véase (Fig.~\ref{fig:augmentation_demo}).
+  
   \item \textbf{Distorsión elástica} local (sobre cada glifo) y global
   (sobre el conjunto aumentado), que en japonés elevó la exactitud de 96.35\%
   a 98.05\% \cite{ly_training_2018}; sobre imágenes de escala de grises y
   trazo fino, las transformaciones geométricas superan a las de color
-  \cite{alomar_da_2023}.
+  \cite{alomar_da_2023}.Como referencia, véase (Fig.~\ref{fig:augmentation_demo}).
+
+  
   \item \textbf{Expansión sintética con fuentes externas} de
   \textit{sitelen pona}, renderizando cada glifo en distintos tamaños y
   pesos, como hicieron \cite{ocrnets_2020} para urdu y
@@ -608,14 +635,16 @@ Colab.
 \section{Consideraciones éticas preliminares}
 \label{sec:ethics}
 % =====================================================
-Puesto que la caligrafía de una persona es considerada un rasgo biométrico
-\cite{hcrnet_2024}, las imágenes manuscritas del \textit{dataset} propio
-podrían identificar a sus autores. Para mitigar este riesgo se solicitará
-consentimiento informado a las personas colaboradoras, se almacenarán los
-datos en un repositorio local controlado y se disociará la identidad del
-escritor del conjunto publicado (si se publica), manteniendo únicamente
-metadatos funcionales (p.\ ej., identificador anónimo de escritor) para
-permitir particiones disjuntas por escritor.
+El \textit{dataset} empleado corresponde a un repositorio público de
+muestras manuscritas de \textit{sitelen pona}, recolectado por la
+comunidad mediante envíos web anónimos y liberado bajo licencia de
+dominio público (CC0 1.0 Universal). Al tratarse de contribuciones ya
+publicadas voluntariamente bajo esta licencia, no se requiere solicitar
+consentimiento adicional para su uso en este proyecto. No obstante, dado
+que la caligrafía puede considerarse un rasgo biométrico
+\cite{hcrnet_2024}, se verificó que las muestras no incluyan metadatos
+que permitan identificar a las personas contribuyentes , y se documentará explícitamente la
+fuente y los términos de la licencia en el repositorio del proyecto.
 
 En cuanto a las fuentes externas de \textit{sitelen pona} que se emplearán
 para la expansión sintética, se revisará la licencia de cada fuente antes de
