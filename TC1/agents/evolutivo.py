@@ -161,8 +161,7 @@ class _Timeout(Exception):
     pass
 
 
-def solve(instance: Instance, seed: int, deadline: float,
-          params: Optional[Params] = None) -> AgentResult:
+def solve(instance: Instance, seed: int, deadline: float, params: Optional[Params] = None) -> AgentResult:
     params = params or Params()
     context = _Context(instance, params.window)
     rng = random.Random(seed)
