@@ -13,18 +13,26 @@ from agents import AGENTS
 from tileup import IllegalMoveError, InstanceError, load_instance, play, write_solution
 
 
+def safety_margin(limit: float) -> float:
+    """Tiempo que se reserva para reproducir y escribir la solución."""
+    return max(0.05, min(1.0, 0.1 * limit))
+
+
 def main(argv=None) -> int:
     t0 = time.perf_counter()
     ap = argparse.ArgumentParser(description="Agentes de búsqueda y evolutivos para TileUp")
     ap.add_argument("instancia", help="ruta del archivo de instancia")
-    ap.add_argument("--agent", required=True, choices=sorted(AGENTS))
-    ap.add_argument("--time", type=float, default=10.0, help="límite total en segundos")
-    ap.add_argument("--output", default=None, help="archivo de solución")
-    ap.add_argument("--seed", default=None, help="semilla de randomización")
+    ap.add_argument("--agente", "--agent", dest="agent", required=True, choices=sorted(AGENTS))
+    ap.add_argument("--semilla", "--seed", dest="seed", type=int, default=0,
+                    help="semilla de la que sale todo el azar (por defecto 0)")
+    ap.add_argument("--tiempo", "--time", dest="time", type=float, default=10.0,
+                    help="límite total en segundos (por defecto 10)")
+    ap.add_argument("--salida", "--output", dest="output", default=None,
+                    help="archivo de solución (por defecto soluciones/<instancia>_<agente>_s<semilla>.txt)")
     args = ap.parse_args(argv)
 
     if args.time <= 0:
-        print("error: --time debe ser positivo", file=sys.stderr)
+        print("error: --tiempo debe ser positivo", file=sys.stderr)
         return 2
     try:
         inst = load_instance(args.instancia)
@@ -35,12 +43,11 @@ def main(argv=None) -> int:
     out_path = args.output
     if out_path is None:
         base = os.path.splitext(os.path.basename(args.instancia))[0]
-        out_path = os.path.join("soluciones", f"{base}_{args.agent}.txt")
+        out_path = os.path.join("soluciones", f"{base}_{args.agent}_s{args.seed}.txt")
 
     # Se reserva un margen para reproducir y escribir la solución, de modo que el
     # programa no termine después del límite pedido.
-    margin = max(0.05, min(1.0, 0.1 * args.time))
-    res = AGENTS[args.agent](inst, args.seed, t0 + args.time - margin)
+    res = AGENTS[args.agent](inst, args.seed, t0 + args.time - safety_margin(args.time))
 
     # La solución del agente se reproduce con el motor: nunca se confía en ella.
     try:
@@ -61,7 +68,7 @@ def main(argv=None) -> int:
         return 1
 
     elapsed = time.perf_counter() - t0
-    print(f"agent={args.agent} instancia={args.instancia}")
+    print(f"agente={args.agent} semilla={args.seed} instancia={args.instancia}")
     print(f"estado={final.status().value}")
     print(f"colocadas={final.placed}")
     print(f"ocupadas={final.occupied}")
