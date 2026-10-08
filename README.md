@@ -2,6 +2,6 @@
 
 Natalia Orozco Delgado - 2024099161 
 Fernando Andrés González Robles - 2024201276 
-
+Valeska Brenes Picado - 2021031484
 
 https://github.com/natiorozco/HTR-SitelenPona
