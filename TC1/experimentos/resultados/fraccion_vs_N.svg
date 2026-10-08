@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 400" width="840" height="400" role="img" aria-label="Fracción de fichas colocadas al crecer N">
+<style>
+  .bg { fill: #fcfcfb; }
+  .t1 { fill: #1a1a19; } .t2 { fill: #52514e; } .t3 { fill: #898781; }
+  .grid { stroke: #e1e0d9; stroke-width: 1; }
+  .axis { stroke: #c3c2b7; stroke-width: 1; }
+  .ref { stroke: #898781; stroke-width: 1; stroke-dasharray: 4 3; }
+  .s0 { stroke: #2a78d6; fill: #2a78d6; } .s1 { stroke: #eb6834; fill: #eb6834; } .s2 { stroke: #1baf7a; fill: #1baf7a; }
+  .pt { stroke: #fcfcfb; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #1a1a19; }
+    .t1 { fill: #ffffff; } .t2 { fill: #c3c2b7; } .t3 { fill: #898781; }
+    .grid { stroke: #2c2c2a; } .axis { stroke: #383835; }
+    .s0 { stroke: #3987e5; fill: #3987e5; } .s1 { stroke: #d95926; fill: #d95926; } .s2 { stroke: #199e70; fill: #199e70; }
+    .pt { stroke: #1a1a19; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .pt:hover { stroke-width: 3; }
+</style>
+<rect class="bg" width="840" height="400"/>
+<text class="t1" x="64" y="26" font-size="16" font-weight="600">Fracción de fichas colocadas al crecer N</text>
+<text class="t2" x="64" y="46" font-size="12">M = 200 fichas · media de 3 semillas · barras: ±1 desviación estándar</text>
+<circle cx="70" cy="66" r="5" class="s0 pt" stroke-width="2"><title>K=4</title></circle>
+<text class="t2" x="80" y="70" font-size="12">K=4</text>
+<rect x="129" y="61" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>K=12</title></rect>
+<text class="t2" x="144" y="70" font-size="12">K=12</text>
+<polygon points="206,60 200,71 212,71" class="s2 pt" stroke-width="2"><title>K=24</title></polygon>
+<text class="t2" x="216" y="70" font-size="12">K=24</text>
+<text class="t1" x="64" y="100" font-size="13" font-weight="600">Búsqueda (DFS con poda)</text>
+<line class="axis" x1="64" x2="404" y1="348.0" y2="348.0"/>
+<text class="t3" x="56" y="352.0" font-size="11" text-anchor="end">0.0</text>
+<line class="grid" x1="64" x2="404" y1="300.0" y2="300.0"/>
+<text class="t3" x="56" y="304.0" font-size="11" text-anchor="end">0.2</text>
+<line class="grid" x1="64" x2="404" y1="252.0" y2="252.0"/>
+<text class="t3" x="56" y="256.0" font-size="11" text-anchor="end">0.4</text>
+<line class="grid" x1="64" x2="404" y1="204.0" y2="204.0"/>
+<text class="t3" x="56" y="208.0" font-size="11" text-anchor="end">0.6</text>
+<line class="grid" x1="64" x2="404" y1="156.0" y2="156.0"/>
+<text class="t3" x="56" y="160.0" font-size="11" text-anchor="end">0.8</text>
+<line class="grid" x1="64" x2="404" y1="108.0" y2="108.0"/>
+<text class="t3" x="56" y="112.0" font-size="11" text-anchor="end">1.0</text>
+<text class="t3" x="120.66666666666666" y="366" font-size="11" text-anchor="middle">4</text>
+<text class="t3" x="234.0" y="366" font-size="11" text-anchor="middle">5</text>
+<text class="t3" x="347.3333333333333" y="366" font-size="11" text-anchor="middle">6</text>
+<text class="t2" x="234.0" y="388" font-size="12" text-anchor="middle">Lado del tablero (N)</text>
+<path d="M120.7,108.0 L234.0,108.0 L347.3,108.0" class="s0" fill="none" stroke-width="2" style="fill:none"/>
+<circle cx="120.66666666666666" cy="108.0" r="5" class="s0 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=4, Lado del tablero (N) = 4: 1.0 ± 0.0 (3 semillas)</title></circle>
+<circle cx="234.0" cy="108.0" r="5" class="s0 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=4, Lado del tablero (N) = 5: 1.0 ± 0.0 (3 semillas)</title></circle>
+<circle cx="347.3333333333333" cy="108.0" r="5" class="s0 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=4, Lado del tablero (N) = 6: 1.0 ± 0.0 (3 semillas)</title></circle>
+<path d="M120.7,300.0 L234.0,156.0 L347.3,108.0" class="s1" fill="none" stroke-width="2" style="fill:none"/>
+<path d="M120.66666666666666,292.8 V307.2 M116.66666666666666,292.8 h8 M116.66666666666666,307.2 h8" class="s1" stroke-width="1" opacity="0.6" style="fill:none"/>
+<path d="M234.0,114.0 V198.0 M230.0,114.0 h8 M230.0,198.0 h8" class="s1" stroke-width="1" opacity="0.6" style="fill:none"/>
+<rect x="115.66666666666666" y="295.0" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=12, Lado del tablero (N) = 4: 0.2 ± 0.0 (3 semillas)</title></rect>
+<rect x="229.0" y="151.0" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=12, Lado del tablero (N) = 5: 0.8 ± 0.2 (3 semillas)</title></rect>
+<rect x="342.3333333333333" y="103.0" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=12, Lado del tablero (N) = 6: 1.0 ± 0.0 (3 semillas)</title></rect>
+<path d="M120.7,324.4 L234.0,306.0 L347.3,284.4" class="s2" fill="none" stroke-width="2" style="fill:none"/>
+<path d="M120.66666666666666,323.0 V325.8 M116.66666666666666,323.0 h8 M116.66666666666666,325.8 h8" class="s2" stroke-width="1" opacity="0.6" style="fill:none"/>
+<path d="M234.0,301.8 V310.2 M230.0,301.8 h8 M230.0,310.2 h8" class="s2" stroke-width="1" opacity="0.6" style="fill:none"/>
+<path d="M347.3333333333333,280.2 V288.6 M343.3333333333333,280.2 h8 M343.3333333333333,288.6 h8" class="s2" stroke-width="1" opacity="0.6" style="fill:none"/>
+<polygon points="120.66666666666666,318.4 114.66666666666666,329.4 126.66666666666666,329.4" class="s2 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=24, Lado del tablero (N) = 4: 0.1 ± 0.0 (3 semillas)</title></polygon>
+<polygon points="234.0,300.0 228.0,311.0 240.0,311.0" class="s2 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=24, Lado del tablero (N) = 5: 0.2 ± 0.0 (3 semillas)</title></polygon>
+<polygon points="347.3333333333333,278.4 341.3333333333333,289.4 353.3333333333333,289.4" class="s2 pt" stroke-width="2"><title>Búsqueda (DFS con poda), K=24, Lado del tablero (N) = 6: 0.3 ± 0.0 (3 semillas)</title></polygon>
+<text class="t2" x="357.3333333333333" y="112.0" font-size="11">K=12</text>
+<text class="t2" x="357.3333333333333" y="125.0" font-size="11">K=4</text>
+<text class="t2" x="357.3333333333333" y="288.4" font-size="11">K=24</text>
+<text class="t1" x="444" y="100" font-size="13" font-weight="600">Evolutivo (genético sobre pesos)</text>
+<line class="axis" x1="444" x2="784" y1="348.0" y2="348.0"/>
+<line class="grid" x1="444" x2="784" y1="300.0" y2="300.0"/>
+<line class="grid" x1="444" x2="784" y1="252.0" y2="252.0"/>
+<line class="grid" x1="444" x2="784" y1="204.0" y2="204.0"/>
+<line class="grid" x1="444" x2="784" y1="156.0" y2="156.0"/>
+<line class="grid" x1="444" x2="784" y1="108.0" y2="108.0"/>
+<text class="t3" x="500.6666666666667" y="366" font-size="11" text-anchor="middle">4</text>
+<text class="t3" x="614.0" y="366" font-size="11" text-anchor="middle">5</text>
+<text class="t3" x="727.3333333333333" y="366" font-size="11" text-anchor="middle">6</text>
+<text class="t2" x="614.0" y="388" font-size="12" text-anchor="middle">Lado del tablero (N)</text>
+<path d="M500.7,108.0 L614.0,108.0 L727.3,108.0" class="s0" fill="none" stroke-width="2" style="fill:none"/>
+<circle cx="500.6666666666667" cy="108.0" r="5" class="s0 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=4, Lado del tablero (N) = 4: 1.0 ± 0.0 (3 semillas)</title></circle>
+<circle cx="614.0" cy="108.0" r="5" class="s0 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=4, Lado del tablero (N) = 5: 1.0 ± 0.0 (3 semillas)</title></circle>
+<circle cx="727.3333333333333" cy="108.0" r="5" class="s0 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=4, Lado del tablero (N) = 6: 1.0 ± 0.0 (3 semillas)</title></circle>
+<path d="M500.7,272.0 L614.0,108.0 L727.3,108.0" class="s1" fill="none" stroke-width="2" style="fill:none"/>
+<path d="M500.6666666666667,255.6 V288.4 M496.6666666666667,255.6 h8 M496.6666666666667,288.4 h8" class="s1" stroke-width="1" opacity="0.6" style="fill:none"/>
+<rect x="495.6666666666667" y="267.0" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=12, Lado del tablero (N) = 4: 0.3 ± 0.1 (3 semillas)</title></rect>
+<rect x="609.0" y="103.0" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=12, Lado del tablero (N) = 5: 1.0 ± 0.0 (3 semillas)</title></rect>
+<rect x="722.3333333333333" y="103.0" width="10" height="10" rx="1" class="s1 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=12, Lado del tablero (N) = 6: 1.0 ± 0.0 (3 semillas)</title></rect>
+<path d="M500.7,323.2 L614.0,284.8 L727.3,132.8" class="s2" fill="none" stroke-width="2" style="fill:none"/>
+<path d="M500.6666666666667,320.7 V325.7 M496.6666666666667,320.7 h8 M496.6666666666667,325.7 h8" class="s2" stroke-width="1" opacity="0.6" style="fill:none"/>
+<path d="M614.0,277.1 V292.5 M610.0,277.1 h8 M610.0,292.5 h8" class="s2" stroke-width="1" opacity="0.6" style="fill:none"/>
+<path d="M727.3333333333333,118.4 V147.2 M723.3333333333333,118.4 h8 M723.3333333333333,147.2 h8" class="s2" stroke-width="1" opacity="0.6" style="fill:none"/>
+<polygon points="500.6666666666667,317.2 494.6666666666667,328.2 506.6666666666667,328.2" class="s2 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=24, Lado del tablero (N) = 4: 0.1 ± 0.0 (3 semillas)</title></polygon>
+<polygon points="614.0,278.8 608.0,289.8 620.0,289.8" class="s2 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=24, Lado del tablero (N) = 5: 0.3 ± 0.0 (3 semillas)</title></polygon>
+<polygon points="727.3333333333333,126.80000000000001 721.3333333333333,137.8 733.3333333333333,137.8" class="s2 pt" stroke-width="2"><title>Evolutivo (genético sobre pesos), K=24, Lado del tablero (N) = 6: 0.9 ± 0.1 (3 semillas)</title></polygon>
+<text class="t2" x="737.3333333333333" y="112.0" font-size="11">K=12</text>
+<text class="t2" x="737.3333333333333" y="125.0" font-size="11">K=4</text>
+<text class="t2" x="737.3333333333333" y="138.0" font-size="11">K=24</text>
+<text class="t2" x="16" y="228.0" font-size="12" text-anchor="middle" transform="rotate(-90 16 228.0)">Fracción colocada</text>
+</svg>
