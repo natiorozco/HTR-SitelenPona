@@ -1,0 +1,5 @@
+modelo,n_semillas,top1_media,top1_desv,top3_media,top3_desv,top5_media,top5_desv,macro_f1_media,macro_f1_desv
+dummy_estratificada,5,0.0083,0.0007,0.0211,0.0025,0.0363,0.0034,0.0077,0.0006
+dummy_mayoritaria,1,0.0094,0.0000,0.0220,0.0000,0.0439,0.0000,0.0001,0.0000
+hog_lr,1,0.9006,0.0000,0.9561,0.0000,0.9702,0.0000,0.9015,0.0000
+pixels_lr,1,0.6878,0.0000,0.8410,0.0000,0.8818,0.0000,0.6812,0.0000

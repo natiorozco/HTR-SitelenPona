@@ -1,0 +1,125 @@
+{
+  "hardware": {
+    "plataforma": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "python": "3.14.7"
+  },
+  "modelo": "hog_lr",
+  "semilla": 0,
+  "features": "hog",
+  "criterio_seleccion": "macro-F1 en validación",
+  "busqueda": [
+    {
+      "celda": 4,
+      "C": 0.001,
+      "val_macro_f1": 0.8469,
+      "segundos_ajuste": 7.0
+    },
+    {
+      "celda": 4,
+      "C": 0.01,
+      "val_macro_f1": 0.8583,
+      "segundos_ajuste": 2.6
+    },
+    {
+      "celda": 4,
+      "C": 0.1,
+      "val_macro_f1": 0.8643,
+      "segundos_ajuste": 2.2
+    },
+    {
+      "celda": 4,
+      "C": 1.0,
+      "val_macro_f1": 0.857,
+      "segundos_ajuste": 1.6
+    },
+    {
+      "celda": 4,
+      "C": 10.0,
+      "val_macro_f1": 0.8545,
+      "segundos_ajuste": 1.6
+    },
+    {
+      "celda": 4,
+      "C": 100.0,
+      "val_macro_f1": 0.8543,
+      "segundos_ajuste": 1.6
+    },
+    {
+      "celda": 8,
+      "C": 0.001,
+      "val_macro_f1": 0.8476,
+      "segundos_ajuste": 1.6
+    },
+    {
+      "celda": 8,
+      "C": 0.01,
+      "val_macro_f1": 0.8745,
+      "segundos_ajuste": 2.3
+    },
+    {
+      "celda": 8,
+      "C": 0.1,
+      "val_macro_f1": 0.8765,
+      "segundos_ajuste": 0.8
+    },
+    {
+      "celda": 8,
+      "C": 1.0,
+      "val_macro_f1": 0.8821,
+      "segundos_ajuste": 0.7
+    },
+    {
+      "celda": 8,
+      "C": 10.0,
+      "val_macro_f1": 0.8764,
+      "segundos_ajuste": 0.5
+    },
+    {
+      "celda": 8,
+      "C": 100.0,
+      "val_macro_f1": 0.8718,
+      "segundos_ajuste": 0.5
+    },
+    {
+      "celda": 16,
+      "C": 0.001,
+      "val_macro_f1": 0.7662,
+      "segundos_ajuste": 0.4
+    },
+    {
+      "celda": 16,
+      "C": 0.01,
+      "val_macro_f1": 0.8399,
+      "segundos_ajuste": 0.8
+    },
+    {
+      "celda": 16,
+      "C": 0.1,
+      "val_macro_f1": 0.855,
+      "segundos_ajuste": 1.0
+    },
+    {
+      "celda": 16,
+      "C": 1.0,
+      "val_macro_f1": 0.8481,
+      "segundos_ajuste": 0.6
+    },
+    {
+      "celda": 16,
+      "C": 10.0,
+      "val_macro_f1": 0.8406,
+      "segundos_ajuste": 0.4
+    },
+    {
+      "celda": 16,
+      "C": 100.0,
+      "val_macro_f1": 0.8312,
+      "segundos_ajuste": 0.3
+    }
+  ],
+  "elegido": {
+    "celda": 8,
+    "C": 1.0
+  }
+}
