@@ -2,5 +2,10 @@ numpy==2.5.4
 pillow==13.0.0
 scikit-image==0.26.0
 scikit-learn==1.9.1
+scipy==1.18.1
+matplotlib==3.11.2
 torch==2.14.1
 torchvision==0.29.1
+# HCR-Net: TensorFlow no tiene versión para Python 3.14; se instala solo en Python <= 3.13 (por ejemplo Colab)
+tensorflow==2.21.0; python_version < "3.14"
+keras==3.15.1; python_version < "3.14"

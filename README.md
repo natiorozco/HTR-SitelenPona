@@ -44,8 +44,20 @@ Búsqueda de hiperparámetros (no guarda predicciones):
 python Etapa_2/torch_models/train.py --model cnn --aug trad --lr 1e-2 --search
 ```
 
-Etapa_2/evaluate.py:
+Etapa_2/hcrnet/train_hcrnet.py (TensorFlow, requiere Python <= 3.13; por ejemplo Colab):
+```
+python Etapa_2/hcrnet/train_hcrnet.py --aug none --seed 0
+python Etapa_2/hcrnet/train_hcrnet.py --aug trad --seed 0
+python Etapa_2/hcrnet/train_hcrnet.py --aug trad --elastica --seed 0
+```
+Prueba rápida y búsqueda de hiperparámetros (no guarda predicciones):
+```
+python Etapa_2/hcrnet/train_hcrnet.py --aug trad --epochs1 2 --epochs2 2 --search
+```
+
+Etapa_2/evaluate.py (métricas, curvas, confusiones, errores y tabla de referencias en results/ y results/figuras/):
 ```
 python Etapa_2/evaluate.py --split val
 python Etapa_2/evaluate.py --split test
+python Etapa_2/evaluate.py --split val --sin-figuras
 ```
