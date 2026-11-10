@@ -18,8 +18,10 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import v2
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from common import PROCESSED_DIR, load_data, subclass_to_word, write_log, write_preds
+from common import PROCESSED_DIR, RESULTS_DIR, load_data, subclass_to_word, write_log, write_preds
 from models import MODELS
+
+MODELS_DIR = RESULTS_DIR / "modelos"
 
 
 def set_seed(seed):
@@ -179,6 +181,9 @@ def main():
         write_log(f"busqueda/{run}_{tag}", log)
     else:
         write_log(run, log)
+        # los pesos de la mejor época son los que usa xai/gradcam_torch.py
+        MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        torch.save(best["state"], MODELS_DIR / f"{run}.pt")
         path = write_preds(name, args.seed, meta["id"], meta["split"], meta["clase"], proba, subclases)
         print(f"-> {path.name}")
     print(f"mejor época {best['epoch']}, val macro-F1 {best['f1']:.4f}, {train_seconds:.0f} s en {device}")

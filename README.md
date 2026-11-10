@@ -61,3 +61,20 @@ python Etapa_2/evaluate.py --split val
 python Etapa_2/evaluate.py --split test
 python Etapa_2/evaluate.py --split val --sin-figuras
 ```
+
+Etapa_2/tradeoff.py (tabla de costo frente a desempeño a partir de los logs y las predicciones; salida en results/tradeoff.md):
+```
+python Etapa_2/tradeoff.py
+python Etapa_2/tradeoff.py --split val
+```
+
+Etapa_2/xai/gradcam_torch.py (requiere el .pt de la corrida, que train.py guarda; figuras en results/figuras/):
+```
+python Etapa_2/xai/gradcam_torch.py --model cnn --aug none --seed 0
+python Etapa_2/xai/gradcam_torch.py --model resnet18 --aug trad --seed 0
+```
+
+Etapa_2/xai/gradcam_tf.py (requiere el .keras de la corrida, que train_hcrnet.py guarda; correr donde esté TensorFlow, por ejemplo Colab):
+```
+python Etapa_2/xai/gradcam_tf.py --run hcrnet_aug --seed 0
+```

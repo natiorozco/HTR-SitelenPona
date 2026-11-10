@@ -1,0 +1,53 @@
+{
+  "hardware": {
+    "plataforma": "Linux-7.2.9-1-cachyos-x86_64-with-glibc2.44",
+    "cpu": "",
+    "python": "3.14.7"
+  },
+  "modelo": "hcrnet_sinaug",
+  "semilla": 99,
+  "config": {
+    "aug": "none",
+    "elastica": false,
+    "seed": 99,
+    "epochs1": 1,
+    "epochs2": 1,
+    "batch": 32,
+    "dropout": 0.35,
+    "patience": 8,
+    "search": false
+  },
+  "dispositivo": "cpu",
+  "versiones": {
+    "tensorflow": "2.22.0-rc0",
+    "keras": "3.16.0.dev2026111003"
+  },
+  "parametros": 9804742,
+  "segundos_entrenamiento": 238.4,
+  "ms_inferencia_por_imagen": 2.642,
+  "epocas_fase1": 1,
+  "mejor_epoca": 2,
+  "mejor_val_macro_f1": 0.8935,
+  "historial": [
+    {
+      "epoca": 1,
+      "fase": 1,
+      "train_loss": 2.144305944442749,
+      "train_acc": 0.5584163069725037,
+      "val_loss": 0.6014537215232849,
+      "val_acc": 0.8877035373385739,
+      "val_macro_f1": 0.879273044374693,
+      "lr": 9.999999747378752e-05
+    },
+    {
+      "epoca": 2,
+      "fase": 2,
+      "train_loss": 0.8435596823692322,
+      "train_acc": 0.8381102681159973,
+      "val_loss": 0.6156919598579407,
+      "val_acc": 0.8972487366647951,
+      "val_macro_f1": 0.8934698202962486,
+      "lr": 1.0000000116860974e-07
+    }
+  ]
+}
