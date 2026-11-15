@@ -19,7 +19,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Etapa_2/data/prepare.py:
+Etapa_2/data/prepare.py (solo si cambia el dataset; correrlo con las versiones de `requirements.txt` y commitear `data/processed/`, porque otra versión de scikit-learn da otra partición):
 ```
 python Etapa_2/data/prepare.py
 ```
