@@ -25,7 +25,7 @@ def main():
         clf.fit(flat[train], meta["subclase"][train])
         proba = clf.predict_proba(flat)
         if strategy == "stratified":
-            # solo da probabilidad a una clase; el resto del top-5 se desempata al azar
+            # solo da probabilidad a una clase, el resto del top-5 se desempata al azar
             rng = np.random.default_rng(seed)
             proba = proba + rng.random(proba.shape) * 1e-6
         path = write_preds(name, seed, meta["id"], meta["split"], meta["clase"], proba, clf.classes_)

@@ -2,6 +2,7 @@
 
 Natalia Orozco Delgado - 2024099161 
 Fernando Andrés González Robles - 2024201276 
+Valeska Brenes Picado - 2021031484
 
 
 https://github.com/natiorozco/HTR-SitelenPona
@@ -80,3 +81,5 @@ Etapa_2/xai/gradcam_tf.py (requiere el .keras de la corrida, que train_hcrnet.py
 ```
 python Etapa_2/xai/gradcam_tf.py --run hcrnet_aug --seed 0
 ```
+
+Importante recalcar que los resultados actuales se obtuvieron localmente (correr_local.py) desde una Macbook Pro M4, debido a las limitaciones de uso del Colab. De igual manera, se conserva el notebook como alternativa.
