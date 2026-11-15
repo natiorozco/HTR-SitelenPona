@@ -1,0 +1,16 @@
+real,predicha,errores,tasa,errores_inversos
+ku,pu,9,0.1800,0
+e,kipisi,7,0.1000,0
+mani,wawa,5,0.0476,0
+monsi,sinpin,5,0.1250,5
+noka,nimi,5,0.0625,0
+poki,poka,5,0.0769,0
+poki,lupa,5,0.0769,1
+sike,ijo,5,0.0667,0
+sinpin,monsi,5,0.0667,5
+toki,kalama,5,0.0435,0
+sina,nasa,4,0.0471,0
+sinpin,tu,4,0.0533,0
+waso,e,4,0.0500,0
+sike,nasa,4,0.0533,1
+suwi,sewi,4,0.0500,0

@@ -1,0 +1,5 @@
+{
+ "cnn_sinaug": "--lr 0.001 --batch 128 --freeze-epochs 0",
+ "cnn_aug": "--lr 0.001 --batch 128 --freeze-epochs 0",
+ "resnet18_aug": "--lr 0.001 --batch 64 --freeze-epochs 0"
+}

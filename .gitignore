@@ -1,5 +1,7 @@
 .venv/
+.venv-tf/
 __pycache__/
 .DS_Store
 .ipynb_checkpoints/
 Etapa_2/results/modelos/
+corrida_local.log

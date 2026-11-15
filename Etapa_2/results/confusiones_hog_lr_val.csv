@@ -1,0 +1,16 @@
+real,predicha,errores,tasa,errores_inversos
+jan,ijo,3,0.2000,0
+oko,lukin,3,0.3000,0
+soko,mama,3,0.2727,0
+sona,kalama,3,0.2000,0
+a,n,2,0.1538,2
+jaki,nasa,2,0.1111,0
+jelo,laso,2,0.1818,0
+kute,kipisi,2,0.1176,0
+lili,suli,2,0.1250,0
+lili,pona,2,0.1250,1
+mama,ijo,2,0.2000,0
+meli,mije,2,0.1818,0
+mun,la,2,0.1333,0
+n,a,2,0.1667,2
+nasa,sike,2,0.1333,0

@@ -2,7 +2,7 @@
   "hardware": {
     "plataforma": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
     "cpu": "arm",
-    "python": "3.14.7"
+    "python": "3.13.7"
   },
   "modelo": "pixels_lr",
   "semilla": 0,
@@ -12,37 +12,37 @@
     {
       "celda": null,
       "C": 0.001,
-      "val_macro_f1": 0.58,
+      "val_macro_f1": 0.5842,
       "segundos_ajuste": 0.9
     },
     {
       "celda": null,
       "C": 0.01,
-      "val_macro_f1": 0.6541,
-      "segundos_ajuste": 1.1
+      "val_macro_f1": 0.6491,
+      "segundos_ajuste": 1.4
     },
     {
       "celda": null,
       "C": 0.1,
-      "val_macro_f1": 0.6442,
+      "val_macro_f1": 0.6407,
       "segundos_ajuste": 1.8
     },
     {
       "celda": null,
       "C": 1.0,
-      "val_macro_f1": 0.646,
+      "val_macro_f1": 0.6333,
       "segundos_ajuste": 0.7
     },
     {
       "celda": null,
       "C": 10.0,
-      "val_macro_f1": 0.6437,
+      "val_macro_f1": 0.644,
       "segundos_ajuste": 0.5
     },
     {
       "celda": null,
       "C": 100.0,
-      "val_macro_f1": 0.6146,
+      "val_macro_f1": 0.6106,
       "segundos_ajuste": 0.4
     }
   ],
