@@ -1,4 +1,4 @@
-# Declaración de uso de IA: Primera entrega
+# Declaración de uso de IA: Segunda entrega
 
 Utilización de Claude Opus 5.5 para las siguientes actividades:
 - Sugerencia de baselines
@@ -6,3 +6,5 @@ Utilización de Claude Opus 5.5 para las siguientes actividades:
 - Definición de argumentos para entrenamiento
 - Script para correr local / notebook
 - Comentarios, aumento de calidad de código, logs
+- Monitoreo de corrida local (arreglo splits)
+- Revisión contra rúbrica
