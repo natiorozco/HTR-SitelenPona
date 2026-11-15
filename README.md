@@ -8,6 +8,8 @@ https://github.com/natiorozco/HTR-SitelenPona
 
 ## Cómo correr la Etapa 2
 
+Para correr todo de una vez en Colab (GPU): abrir `Etapa_2/correr_etapa2.ipynb` y ejecutar las celdas en orden.
+
 Todos los comandos se corren desde la raíz del repo.
 
 Instalación:

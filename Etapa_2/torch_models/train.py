@@ -177,7 +177,7 @@ def main():
            "mejor_epoca": best["epoch"], "mejor_val_macro_f1": round(best["f1"], 4),
            "historial": history}
     if args.search:
-        tag = f"lr{args.lr}_b{args.batch}_wd{args.weight_decay}"
+        tag = f"lr{args.lr}_b{args.batch}_wd{args.weight_decay}_f{args.freeze_epochs}"
         write_log(f"busqueda/{run}_{tag}", log)
     else:
         write_log(run, log)
