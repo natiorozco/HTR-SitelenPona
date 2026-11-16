@@ -8,3 +8,5 @@ Utilización de Claude Opus 5.5 para las siguientes actividades:
 - Comentarios, aumento de calidad de código, logs
 - Monitoreo de corrida local (arreglo splits)
 - Revisión contra rúbrica
+- Elaboración de readme
+- Arreglos en redacción formal y técnica del artículo
