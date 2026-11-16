@@ -224,7 +224,7 @@ La Tabla~\ref{tab:comparativa} resume los trabajos revisados en este estado
 del arte, según el protocolo, la métrica y el resultado reportado por cada
 autor.
 
-\begin{table*}[!ht]
+\begin{table*}[p]
 \centering
 \caption{Comparación de trabajos relacionados}
 \label{tab:comparativa}
@@ -624,6 +624,399 @@ corrida con su configuración, semilla, tiempos e historial por época.
 \subsection{Cambios respecto a la propuesta}
 Por cuestiones de tiempo y alcance, se hace el descarte de la expansión sintética con fuentes, así como de la evaluación de RLR, los aumentos específicos por glifo y la clasificación \textit{open-set} para \textit{jaki}. En consecuencia, la segunda hipótesis (la combinación balanceada de aumento débil y expansión sintética) no se evalúa en este trabajo. Contrario a lo planteado, se decidió no binarizar porque el fondo ya se encontraba limpio y la binarización borraría trazos débiles. Además, se hace la ejecución en una máquina local debido a las limitaciones de uso de Google Colab. 
 
+
+% =====================================================
+\section{Experimentos y resultados}
+\label{sec:results}
+% =====================================================
+
+Esta sección reporta los resultados del protocolo descrito en la
+Sección~\ref{sec:methodology}. Salvo que se indique otra cosa, las cifras
+son de la partición de prueba, a nivel de palabra, con la media y la
+desviación estándar de las 5 semillas; los baselines clásicos son
+deterministas y se reportan con una sola corrida. La selección de
+configuraciones y del mejor modelo se hizo siempre con validación; la
+partición de prueba se evaluó una única vez, al final.
+
+\subsection{Búsqueda de hiperparámetros}
+La Tabla~\ref{tab:busqueda} muestra el macro-F1 de validación de las 18
+corridas de la búsqueda (semilla 0). En las dos variantes de la CNN la mejor
+configuración fue una tasa de $10^{-3}$ con lote de 128, y en ResNet18 una
+tasa de $10^{-3}$ sin congelar. En ResNet18 la tasa elegida quedó en el borde
+de la grilla, pero las tres tasas sin congelar difieren en a lo sumo 0.12
+puntos, menos que la desviación entre semillas de la Tabla~\ref{tab:resultados}
+($\pm0.12$ en validación), por lo que el modelo es poco sensible a la tasa en
+ese rango y no se justificaba extender la grilla. Congelar la red durante las
+3 primeras épocas empeoró el resultado con las tres tasas (entre 0.6 y 0.8
+puntos). En la CNN, la tasa más alta ($3\cdot10^{-3}$) fue la peor en tres de
+los cuatro casos.
+
+\begin{table}[!t]
+\centering
+\caption{Búsqueda de hiperparámetros: macro-F1 de validación (\%), semilla 0.
+En negrita, la configuración elegida.}
+\label{tab:busqueda}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{2}{c}{CNN sin aumento} & \multicolumn{2}{c}{CNN con aumento} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Tasa & lote 64 & lote 128 & lote 64 & lote 128 \\
+\midrule
+$3\cdot10^{-4}$ & 94.55 & 93.97 & 95.25 & 95.12 \\
+$10^{-3}$       & 94.46 & \textbf{94.68} & 94.96 & \textbf{95.69} \\
+$3\cdot10^{-3}$ & 92.82 & 94.20 & 94.50 & 94.14 \\
+\midrule
+ & \multicolumn{2}{c}{ResNet18 (lote 64)} & & \\
+\cmidrule(lr){2-3}
+Tasa & sin congelar & 3 ép.\ congelada & & \\
+\midrule
+$10^{-4}$       & 96.00 & 95.17 & & \\
+$3\cdot10^{-4}$ & 96.04 & 95.43 & & \\
+$10^{-3}$       & \textbf{96.12} & 95.57 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Comparación con los puntos de referencia}
+La Tabla~\ref{tab:resultados} reúne los tres puntos de referencia exigidos
+(trivial, clásico y de literatura) y los modelos propios.
+
+\begin{table*}[!t]
+\centering
+\caption{Resultados en prueba (media $\pm$ desviación de 5 semillas; los
+baselines clásicos son una corrida). Se incluye el macro-F1 de validación,
+que es el criterio de selección, y el costo de cada modelo. Los tiempos de
+HCR-Net ($^\dagger$) se midieron en CPU y los de PyTorch en la GPU
+integrada (MPS), por lo que no son comparables entre sí.}
+\label{tab:resultados}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccrrr}
+\toprule
+Modelo & Referencia & Top-1 (\%) & Top-5 (\%) & Macro-F1 (\%) & Macro-F1 val.\ (\%) & Parámetros & Entren.\ (s) & ms/imagen \\
+\midrule
+Clase mayoritaria        & trivial    & 0.69 & 3.55 & 0.01 & 0.02 & -- & -- & -- \\
+Aleatoria estratificada  & trivial    & $0.99 \pm 0.26$ & $4.31 \pm 0.24$ & $0.94 \pm 0.24$ & $0.72 \pm 0.19$ & -- & -- & -- \\
+Píxeles + LR             & clásico (ablación) & 67.67 & 87.92 & 66.53 & 64.91 & -- & -- & -- \\
+HOG + LR                 & clásico    & 89.72 & 96.50 & 89.60 & 88.08 & -- & -- & -- \\
+\midrule
+HCR-Net sin aumento      & literatura & $96.61 \pm 0.15$ & $99.16 \pm 0.07$ & $96.53 \pm 0.19$ & $95.30 \pm 0.24$ & 9.8\,M & $693 \pm 21^\dagger$ & $0.668^\dagger$ \\
+HCR-Net + aumento        & literatura & $96.77 \pm 0.21$ & $99.14 \pm 0.05$ & $96.67 \pm 0.20$ & $95.40 \pm 0.22$ & 9.8\,M & $832 \pm 235^\dagger$ & $0.667^\dagger$ \\
+HCR-Net + aum.\ + elástica & literatura & $96.68 \pm 0.14$ & $99.09 \pm 0.18$ & $96.61 \pm 0.11$ & $95.34 \pm 0.27$ & 9.8\,M & $656 \pm 147^\dagger$ & $0.665^\dagger$ \\
+\midrule
+CNN sin aumento          & propio & $96.08 \pm 0.18$ & $98.93 \pm 0.09$ & $95.93 \pm 0.24$ & $94.60 \pm 0.31$ & 0.85\,M & $37 \pm 8$ & 0.028 \\
+CNN + aumento            & propio & $96.94 \pm 0.07$ & $99.26 \pm 0.03$ & $96.76 \pm 0.09$ & $95.43 \pm 0.26$ & 0.85\,M & $139 \pm 19$ & 0.028 \\
+ResNet18 + aumento       & propio & $\mathbf{97.57 \pm 0.29}$ & $\mathbf{99.39 \pm 0.06}$ & $\mathbf{97.45 \pm 0.33}$ & $\mathbf{95.96 \pm 0.12}$ & 11.2\,M & $456 \pm 91$ & 0.112 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\textbf{Baselines triviales.} La clase mayoritaria y la predicción
+aleatoria estratificada quedan por debajo del 1\,\% de exactitud, como se
+espera con 131 palabras de frecuencia parecida ($1/131 \approx 0.76\,\%$).
+Confirman que ninguna palabra domina el conjunto y que el problema no tiene
+una solución trivial.
+
+\textbf{Baseline clásico.} HOG con regresión logística alcanza 89.60\,\% de
+macro-F1, un baseline fuerte: la misma regresión sobre los 1\,024 píxeles
+crudos se queda en 66.53\,\%, así que el descriptor de gradientes aporta 23
+puntos por sí solo. Todas las redes superan a HOG por entre 6.3 y 7.9 puntos
+de macro-F1 (de 89.60 a entre 95.93 y 97.45\,\%); en validación la diferencia
+es la misma (de 88.08 a entre 94.60 y 95.96\,\%). Visto como lo que falta
+para un macro-F1 perfecto, el mejor modelo profundo pasa de 10.4 a 2.6 puntos
+(cuatro veces menos), por lo
+que la ganancia del \textit{deep learning} sobre el baseline clásico no es
+marginal. Aun así, conviene notar que un clasificador lineal sobre un
+descriptor de 2005 resuelve casi el 90\,\% del problema sin GPU, y que entre
+el baseline clásico y la red más grande hay más diferencia que entre todas
+las redes juntas (1.5 puntos).
+
+\textbf{Baseline de literatura.} HCR-Net reproducido sobre esta partición
+obtiene 96.77\,\% de exactitud \textit{top-1} con aumento, dentro del rango
+de lo publicado para escrituras no latinas (96.53\,\% en HWRGurmukhi\_1.3 y
+99.31\,\% en HWRGurmukhi\_1.1 \cite{hcrnet_2024}), aunque aquí hay 131
+clases en vez de 35. Como se explicó en la Sección~\ref{sec:baseline}, esos
+valores no son directamente comparables, y la comparación justa es la interna
+de la Tabla~\ref{tab:resultados}. En ella, la CNN pequeña con aumento empata
+con HCR-Net (96.76 frente a 96.67\,\% de macro-F1) con 11.6 veces menos
+parámetros, y ResNet18 lo supera por 0.78 puntos.
+
+\textbf{Significancia.} Para separar las diferencias reales de la variación
+entre semillas, se aplicó una prueba $t$ de Welch bilateral al macro-F1 de
+prueba de las 5 semillas de cada modelo. ResNet18 supera a la CNN con aumento
+($+0.69$ puntos, $p = 0.012$) y a HCR-Net con aumento ($+0.78$, $p = 0.006$).
+La diferencia entre la CNN con aumento y HCR-Net con aumento no es
+significativa ($+0.09$, $p = 0.44$). Esta prueba solo mide la variación del
+entrenamiento, porque todas las semillas comparten la misma partición; no
+captura la incertidumbre que vendría de cambiar las imágenes de prueba.
+
+\textbf{Aumento de datos.} El aumento mejora a la CNN en 0.83 puntos
+($p = 0.001$), pero en HCR-Net la mejora es de 0.14 puntos y no es
+significativa ($p = 0.35$); agregar la distorsión elástica a HCR-Net tampoco
+cambia el resultado ($-0.06$, $p = 0.61$). Como se ve en la
+Sección~\ref{sec:sobreajuste}, el aumento sí reduce la brecha entre
+entrenamiento y validación en ambos modelos, aunque en HCR-Net eso no se
+traduce en un mejor macro-F1.
+
+\textbf{Exactitud \textit{top-5}.} En todas las redes la palabra correcta
+está entre las cinco primeras en más del 98.9\,\% de los casos, y en ResNet18
+en el 99.39\,\%. La mayoría de los errores \textit{top-1} son, entonces,
+confusiones entre pocas palabras parecidas y no fallos generales, lo que se
+analiza en la Sección~\ref{sec:errores}.
+
+\textbf{Validación frente a prueba.} En todos los modelos, la partición de
+prueba resulta entre 1.2 y 1.6 puntos de macro-F1 más fácil que la de
+validación, y el
+orden de los modelos es el mismo en ambas. No se trata de una fuga, porque
+la partición de prueba no se usó para ninguna decisión. La explicación más
+probable está en su composición: aunque la partición está estratificada por
+palabra, el 80\,\% de las imágenes de prueba (1\,519 de 1\,887) proviene de
+solo 3 de sus 45 sesiones, frente al 43\,\% en validación y el 13\,\% en
+entrenamiento. Estas sesiones grandes corresponden a personas que dibujaron
+casi todo el vocabulario, y la cifra de prueba depende en buena medida de qué
+tan fácil es su estilo. Por eso las conclusiones de este trabajo se apoyan en
+la diferencia entre modelos, que se mantiene en ambas particiones, más que en
+el valor absoluto de prueba.
+
+\subsection{Curvas de entrenamiento y diagnóstico de sobreajuste}
+\label{sec:sobreajuste}
+La Fig.~\ref{fig:curvas} muestra las curvas de la CNN sin aumento y de
+ResNet18, y la Tabla~\ref{tab:sobreajuste} resume la brecha entre la
+exactitud de entrenamiento y la de validación en la mejor época. En todos los
+modelos la pérdida de entrenamiento baja casi a cero mientras la de
+validación se estabiliza entre 0.23 y 0.46: los modelos memorizan el
+conjunto de entrenamiento (exactitud de 98 a 99.9\,\%) y la generalización
+deja de mejorar, pero la pérdida de validación no vuelve a subir. Después de
+la mejor época sube en promedio a lo sumo 0.008 (0.023 en la peor semilla),
+de modo que la parada temprana corta en la meseta y no en una zona de
+deterioro.
+
+El sobreajuste es moderado y el aumento de datos lo reduce. Sin aumento, la
+brecha es de 5.0 puntos en la CNN y de 4.5 en HCR-Net; con aumento baja a 2.6
+y 3.3, y en HCR-Net con distorsión elástica también a 2.6. En la CNN esa
+reducción se acompaña de una mejora en validación y en prueba; en HCR-Net
+solo baja la exactitud de entrenamiento, sin que suba la de validación. Una
+lectura posible es que la parte preentrenada de VGG16 ya aporta la
+regularización que en la CNN entrenada desde cero da el aumento. ResNet18
+tiene una brecha de 3.6 puntos con aumento, intermedia, y es la que alcanza
+la mayor exactitud de validación.
+
+\begin{table}[!t]
+\centering
+\caption{Diagnóstico de sobreajuste en la mejor época de validación (media de
+5 semillas): época elegida, exactitud de entrenamiento y de validación, y su
+diferencia.}
+\label{tab:sobreajuste}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+Modelo & Época & Entren. & Val. & Brecha \\
+\midrule
+CNN sin aumento          & $33 \pm 9$  & 0.996 & 0.947 & 0.050 \\
+CNN + aumento            & $43 \pm 7$  & 0.981 & 0.955 & 0.026 \\
+ResNet18 + aumento       & $27 \pm 7$  & 0.996 & 0.960 & 0.036 \\
+HCR-Net sin aumento      & $44 \pm 5$  & 0.999 & 0.954 & 0.045 \\
+HCR-Net + aumento        & $34 \pm 10$ & 0.988 & 0.955 & 0.033 \\
+HCR-Net + aum.\ + elást. & $26 \pm 6$  & 0.981 & 0.955 & 0.026 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figuras/curvas_cnn_sinaug.png}\\[2pt]
+\includegraphics[width=\columnwidth]{figuras/curvas_resnet18_aug.png}
+\caption{Curvas de pérdida y exactitud (semilla 0) de la CNN sin aumento
+(arriba), el caso con mayor brecha, y de ResNet18 con aumento (abajo). La
+línea discontinua marca la época que restaura la parada temprana. Las curvas
+del resto de los modelos están en el repositorio.}
+\label{fig:curvas}
+\end{figure}
+
+\subsection{Comparación de arquitecturas preentrenadas: ResNet18 frente a HCR-Net}
+Como módulo adicional se compararon dos modelos preentrenados en ImageNet de
+familias distintas: ResNet18, de la familia residual \cite{he_resnet_2016},
+y HCR-Net, basada en VGG16 \cite{hcrnet_2024}. Ambos usan la misma partición,
+el mismo criterio de parada y el mismo script de evaluación. ResNet18 obtiene
+97.45\,\% de macro-F1 frente a 96.67\,\% de HCR-Net con aumento, con un
+número de parámetros parecido (11.2\,M frente a 9.8\,M). La diferencia es
+pequeña pero significativa y se repite en validación (95.96 frente a
+95.40\,\%). A cambio, ResNet18 tiene la mayor variación entre semillas
+($\pm0.33$ en prueba), aunque su peor semilla (96.93\,\%) sigue por encima de
+la media de HCR-Net.
+
+Esta comparación tiene dos factores que no se pudieron aislar. Primero,
+ResNet18 recibe imágenes de $64\times64$ y HCR-Net de $32\times32$, como en
+su versión publicada, de modo que parte de la ventaja de ResNet18 puede venir
+de la resolución y no de la arquitectura. Segundo, cada uno conserva su
+propia receta de entrenamiento (optimizador, tasas, fases y librería de
+aumento). Por eso el resultado se lee como una comparación entre dos
+\textit{pipelines} completos y no entre dos arquitecturas en igualdad de
+condiciones.
+
+En cuanto al costo, los tiempos de HCR-Net no se pueden comparar con los de
+ResNet18, porque TensorFlow no tiene soporte para la GPU de la máquina usada
+y HCR-Net corrió en CPU. La comparación de costos se hace entonces dentro de
+PyTorch, con la CNN como referencia: ResNet18 tiene 13.3 veces más parámetros,
+tarda 3.3 veces más en entrenar que la CNN con aumento (456 frente a 139\,s)
+y 4 veces más en inferencia (0.112 frente a 0.028\,ms por imagen), a cambio
+de 0.69 puntos de macro-F1. La CNN con aumento, por su parte, iguala a HCR-Net
+con 11.6 veces menos parámetros. En términos de costo y desempeño, la CNN
+pequeña con aumento es la opción más eficiente y ResNet18 la más exacta; el
+modelo de literatura no domina en ninguno de los dos ejes. En los tres casos
+la inferencia está por debajo de 1\,ms por imagen, así que ninguna opción es
+cara de usar una vez entrenada.
+
+\subsection{Análisis de errores}
+\label{sec:errores}
+Los errores se concentran en pocos pares de palabras. La Fig.~\ref{fig:confusion}
+muestra la matriz de confusión de ResNet18 restringida a las palabras de los
+15 pares más confundidos; la matriz completa de 131 palabras es casi
+diagonal y no se distingue a esta escala. En las 5 semillas, 35 de las 131
+palabras se clasifican sin ningún error, y las de peor F1 son \textit{ku}
+(0.84), \textit{kipisi} (0.86), \textit{monsi} (0.88), \textit{e} (0.88) y
+\textit{sinpin} (0.89).
+
+Los pares más confundidos, sumando las 5 semillas, son \textit{ku}$\to$\textit{pu}
+(9 errores), \textit{e}$\to$\textit{kipisi} (7) y \textit{monsi}$\to$\textit{sinpin}
+(5) en ResNet18; \textit{waso}$\to$\textit{e} (14), \textit{e}$\to$\textit{kipisi}
+(9) y \textit{ku}$\to$\textit{pu} (9) en la CNN con aumento; y
+\textit{sike}$\to$\textit{nasa} (15), \textit{waso}$\to$\textit{e} (11) y
+\textit{kin}$\to$\textit{lete} (10) en HCR-Net con aumento. Son pares de glifos
+que de verdad se parecen: \textit{ku} y \textit{pu} comparten el rectángulo
+del libro, \textit{monsi} y \textit{sinpin} son casi imágenes especulares
+(razón por la que no se usan volteos en el aumento) y \textit{poki} y
+\textit{lupa} solo difieren en si el fondo de la U es plano o redondeado. En
+validación se repiten además \textit{oko}$\leftrightarrow$\textit{lukin} y
+\textit{soko}$\to$\textit{mama} en casi todos los modelos. HOG con regresión
+logística se comporta distinto: sus cerca de 200 errores están repartidos,
+con a lo sumo 2 por par, lo que indica que falla de forma general y no por pares
+específicos.
+
+Los tres modelos profundos fallan, en buena parte, en las mismas imágenes.
+Con la semilla 0, ResNet18 comete 41 errores, la CNN con aumento 58 y
+HCR-Net con aumento 66; 26 de los 41 errores de ResNet18 (63\,\%) también los
+cometen los otros dos modelos. La Fig.~\ref{fig:errores} muestra los errores
+de ResNet18 con mayor confianza. Varios de ellos, con confianza de 1.00, son
+muestras atípicas o de etiqueta dudosa más que fallos del modelo: un
+\textit{ku} en el que la persona escribió las letras ``KU'' dentro del libro,
+un \textit{noka} dibujado como un pie realista en vez del glifo, un
+\textit{sike} que es un círculo sin el rasgo que lo distingue de
+\textit{ijo}, un \textit{poki} con la forma redondeada de \textit{lupa} y
+varios \textit{jaki} hechos como garabatos densos. Esto sugiere que parte
+del 2 al 3\,\% de error restante se debe a ruido de etiquetas en el
+\textit{dataset} y no se puede corregir con un mejor modelo.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figuras/confusion_resnet18_aug_test.png}
+\caption{Matriz de confusión de ResNet18 en prueba (5 semillas), restringida
+a las palabras de los 15 pares más confundidos. Cada fila está normalizada
+por el número de muestras de la palabra real.}
+\label{fig:confusion}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figuras/errores_resnet18_aug_test.png}
+\caption{Errores de ResNet18 con mayor confianza en prueba (semilla 0),
+en formato real$\to$predicha.}
+\label{fig:errores}
+\end{figure}
+
+\subsection{Explicabilidad con Grad-CAM}
+La Fig.~\ref{fig:gradcam} muestra Grad-CAM \cite{selvaraju_gradcam_2017}
+sobre ResNet18 (\texttt{layer3}), la CNN con aumento (\texttt{relu3}) y
+HCR-Net con aumento (\texttt{block4\_conv2}), en tres grupos: los aciertos con
+mayor confianza, los aciertos con menor confianza y los errores con mayor
+confianza. De su revisión salen cuatro observaciones.
+
+\textbf{(1) En muchos aciertos, el calor cae en el rasgo que distingue al
+glifo.} En HCR-Net, las dos \textit{anu} se activan en la unión de los tres
+trazos; en la CNN, \textit{akesi} se activa sobre el cuerpo cruzado por las
+líneas; y en ResNet18, varias \textit{a} se activan en el punto donde el
+trazo vertical se une al lazo, y \textit{en} en el cruce de la cruz.
+
+\textbf{(2) Los modelos también usan el espacio vacío.} En las \textit{a}
+de la CNN el calor está a la derecha del glifo, donde no hay tinta, y en
+\textit{wan}, que es un solo trazo vertical, la CNN se activa en las dos
+bandas vacías a sus lados. Como el preprocesamiento centra el glifo y
+conserva su proporción, la distribución del vacío en el lienzo codifica la
+forma del glifo, y usarla es una señal legítima. Esto no prueba un atajo,
+pero sí que la evidencia del modelo no se limita a la tinta. A diferencia de
+los casos clásicos de atajos, como la marca de agua de un hospital, aquí la
+imagen no contiene nada aparte del trazo: el fondo es el canal alfa vacío.
+El único elemento ajeno al glifo que apareció fueron las letras ``KU''
+escritas dentro de un \textit{ku}, y en ese caso ResNet18 se activó sobre el
+dibujo y no sobre las letras.
+
+\textbf{(3) En los errores, el calor cae en las partes que comparten las dos
+palabras y no en el detalle que las separa.} En \textit{sinpin}$\to$\textit{monsi},
+tanto ResNet18 como la CNN se activan en la barra horizontal, que es común a
+ambos glifos, y no en el punto, que es el que indica de qué palabra se trata.
+En \textit{poki}$\to$\textit{lupa}, ResNet18 pone el calor en la base de la U, justo
+donde la muestra se parece a \textit{lupa}. Esto coincide con el análisis de
+errores: el modelo reconoce la forma general y falla en el detalle fino.
+
+\textbf{(4) Los mapas son gruesos.} Con entradas de $32\times32$ y
+$64\times64$, la última capa convolucional tiene muy poca resolución:
+$4\times4$ en \texttt{block4\_conv2} de HCR-Net y en \texttt{layer3} de
+ResNet18, y $2\times2$ en \texttt{layer4}. En \texttt{layer4} el mapa apenas
+distingue mitades de la imagen y no es informativo, por lo que se usa
+\texttt{layer3}. Algunos mapas de HCR-Net marcan bordes o esquinas vacías
+(por ejemplo, el borde derecho en \textit{alasa}), que a esta resolución
+pueden deberse más a la interpolación que al modelo. Por eso Grad-CAM se
+interpreta aquí a nivel de región del glifo y no de trazo.
+
+En resumen, a la pregunta de si el modelo mira lo que debería, la respuesta
+es que sí en la mayoría de los aciertos: atiende a la estructura del glifo y
+a su forma en el lienzo, y no a elementos externos. Sus errores de alta
+confianza vienen de muestras ambiguas o atípicas y de detalles pequeños,
+como un punto, que el modelo no pondera lo suficiente.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.49\textwidth]{figuras/gradcam_resnet18_aug_seed0_layer3.png}\hfill
+\includegraphics[width=0.49\textwidth]{figuras/gradcam_cnn_aug_seed0_relu3.png}\\[4pt]
+\includegraphics[width=0.49\textwidth]{figuras/gradcam_hcrnet_aug_seed0_block4_conv2.png}
+\caption{Grad-CAM sobre la partición de prueba (semilla 0): ResNet18 en
+\texttt{layer3} (arriba a la izquierda), CNN con aumento en \texttt{relu3}
+(arriba a la derecha) y HCR-Net con aumento en \texttt{block4\_conv2}
+(abajo). En cada panel, la primera fila son los aciertos con mayor confianza,
+la segunda los aciertos con menor confianza y la tercera los errores con
+mayor confianza.}
+\label{fig:gradcam}
+\end{figure*}
+
+\subsection{Limitaciones de los resultados}
+\begin{itemize}
+  \item \textbf{Tiempos.} HCR-Net corrió en CPU y los modelos de PyTorch en
+  MPS, así que sus tiempos de entrenamiento e inferencia no son comparables.
+  Solo se comparan los parámetros y el desempeño de todos los modelos, y los
+  tiempos dentro de PyTorch.
+  \item \textbf{Aumento.} El aumento de Keras (HCR-Net) y el de
+  \texttt{torchvision} usan los mismos rangos, pero no son idénticos en su
+  implementación.
+  \item \textbf{Resolución.} ResNet18 usa $64\times64$ y HCR-Net
+  $32\times32$; la comparación entre ambos no aísla la arquitectura.
+  \item \textbf{Escritores.} El \textit{dataset} no identifica a quién
+  escribió cada glifo. La agrupación por sesión lo aproxima, pero una misma
+  persona podría tener envíos en sesiones distintas y aparecer en
+  entrenamiento y en prueba.
+  \item \textbf{Composición de prueba.} El 80\,\% de la partición de prueba
+  proviene de 3 sesiones, y resultó entre 1.2 y 1.6 puntos más fácil que
+  validación. El valor absoluto de prueba depende mucho de pocos estilos de
+  escritura.
+  \item \textbf{Búsqueda.} La búsqueda de hiperparámetros usó una sola
+  semilla y una grilla acotada; HCR-Net no se ajustó, por ser el baseline de
+  literatura.
+  \item \textbf{Grad-CAM.} Con mapas de $4\times4$ solo permite conclusiones
+  a nivel de región.
+\end{itemize}
 
 % =====================================================
 \section{Consideraciones éticas preliminares}
