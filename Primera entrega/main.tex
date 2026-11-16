@@ -464,91 +464,100 @@ $p(w \mid x) = \sum_{y:\, m(y)=w} f_{\theta}(x)[y]$. Todas las métricas se
 calculan a nivel de palabra.
 
 \subsection{Conjunto de datos}
-Se utiliza el conjunto público \textit{sitelen pona handwritten SVG samples}
-\cite{sitelen_pona_dataset}, recolectado por la comunidad de Toki Pona mediante envíos anónimos en un sitio web y publicado en Internet Archive bajo licencia CC0 1.0. Cada envío es un PNG de $480\times480$ con la tinta codificada en el canal alfa, etiquetado con la palabra que se pidió dibujar y con la marca de tiempo del envío. Los autores identificaron el conjunto y lo curaron reubicando los envíos equivocados en la carpeta correcta y descartando los envíos basura. La versión utilizada contiene 12\,015 imágenes de 133 subclases (131 palabras), enviadas entre octubre de 2022 y diciembre de 2025.
+Se usa el conjunto público \textit{sitelen pona handwritten SVG samples}
+\cite{sitelen_pona_dataset}, que la comunidad de Toki Pona recolectó con
+envíos anónimos desde un sitio web y publicó en Internet Archive bajo licencia
+CC0 1.0. Cada envío es un PNG de $480\times480$ con la tinta en el canal alfa,
+etiquetado con la palabra que se pidió dibujar y con la hora del envío. Los
+autores curaron el conjunto: movieron a su carpeta correcta los envíos mal
+ubicados y descartaron los que no eran glifos. La versión utilizada tiene
+12\,015 imágenes de 131 palabras (133 subclases), enviadas entre octubre de
+2022 y diciembre de 2025.
 
 \subsection{Preprocesamiento}
-Cada imagen se convierte a escala de grises a partir del canal alfa (tinta
-$=1$, fondo $=0$), se recorta a la \textit{bounding box} de los píxeles con
-tinta, se agrega un margen del 10\,\% y se centra en un lienzo cuadrado, de
-modo que se conserva la proporción del glifo. El cuadrado se redimensiona con
-interpolación de Lanczos a $32\times32$ (CNN, HCR-Net y baseline de píxeles)
-y a $64\times64$ (ResNet18 y HOG). No se binariza debido a que el fondo ya es limpio, y borraría los trazos finos. La media y la desviación estándar para normalizar se calculan solo sobre el conjunto de entrenamiento.
+Cada imagen se pasa a escala de grises a partir del canal alfa (tinta $=1$,
+fondo $=0$), se recorta al rectángulo que contiene la tinta y se centra, con
+un margen del 10\,\%, en un lienzo cuadrado para no deformar el glifo. Luego
+se redimensiona con interpolación de Lanczos a $32\times32$ para la CNN,
+HCR-Net y el baseline de píxeles, y a $64\times64$ para ResNet18 y HOG. No se
+binariza, porque el fondo ya es limpio y la binarización borraría los trazos
+finos. La media y la desviación estándar de la normalización se calculan solo
+con el conjunto de entrenamiento.
 
 \subsection{Limpieza y control de fugas}
-Se controlaron las tres fuentes de fuga propias de este dominio:
+Se revisaron tres posibles fuentes de fuga:
 \begin{itemize}
-  \item \textbf{Casi duplicados.} Se calcula un \textit{difference hash}
-  (dHash) de $16\times16$ bits por imagen y se consideran duplicados los pares
-  a distancia de Hamming $\leq 2$; el umbral se calibró inspeccionando
-  visualmente los pares en distintas distancias. De cada par con la misma
-  etiqueta se conserva una copia, y los pares con etiquetas distintas se
-  descartan completos. Se eliminaron así 152 imágenes.
-  \item \textbf{Manchas.} Se descartan las imágenes con más del 45\,\% de
-  píxeles de tinta (3 casos), que corresponden a áreas rellenas y no a glifos.
-  \item \textbf{Misma sesión en varias particiones.} El conjunto no identifica
-  a quién escribió cada glifo, pero los envíos consecutivos de una persona
-  quedan próximos en el tiempo. Se agrupan en una sesión los envíos
-  separados por menos de 300\,s, y cada sesión se asigna completa a una sola
-  partición. Esto para evitar que un mismo estilo de trazo aparezca en entrenamiento y en prueba.
+  \item \textit{Casi duplicados.} Se calcula un \textit{difference hash}
+  (dHash) de $16\times16$ bits por imagen y se toman como duplicados los pares
+  a distancia de Hamming $\leq 2$, umbral elegido revisando a mano pares a
+  distintas distancias. Si las dos imágenes tienen la misma etiqueta se
+  conserva una; si no, se descartan ambas. Así se eliminaron 152 imágenes.
+  \item \textit{Manchas.} Se descartan 3 imágenes con más del 45\,\% de
+  píxeles de tinta, que son áreas rellenas y no glifos.
+  \item \textit{Misma persona en varias particiones.} El conjunto no indica
+  quién escribió cada glifo, pero los envíos de una misma persona suelen ser
+  seguidos. Por eso, los envíos separados por menos de 300\,s se agrupan en
+  una sesión, y cada sesión va completa a una sola partición, para que un
+  mismo estilo de trazo no aparezca en entrenamiento y en prueba.
 \end{itemize}
-Así, se tienen 11\,860 imágenes en 440 sesiones, con entre 52 y 133 imágenes por
-palabra. La partición 70/15/15 se obtiene con \texttt{StratifiedGroupKFold} de scikit-learn \cite{pedregosa_sklearn_2011} (20 \textit{folds}, semilla 42: tres para prueba, tres para validación y el resto para entrenamiento), estratificada por subclase y agrupada por sesión.
-El resultado es 8\,144 imágenes de entrenamiento (68.7\,\%), 1\,829 de
-validación (15.4\,\%) y 1\,887 de prueba (15.9\,\%), con las 131 palabras
-presentes en las tres particiones. La partición se guarda en el repositorio
-(\texttt{splits.csv}) para que todos los modelos usen exactamente la misma.
+Quedan 11\,860 imágenes en 440 sesiones, con entre 52 y 133 por palabra. La
+partición se hace con \texttt{StratifiedGroupKFold} de scikit-learn
+\cite{pedregosa_sklearn_2011}, estratificada por subclase y agrupada por
+sesión: de 20 \textit{folds}, tres van a prueba, tres a validación y el resto
+a entrenamiento. Resultan 8\,144 imágenes de entrenamiento, 1\,829 de
+validación y 1\,887 de prueba (aproximadamente 70/15/15), con las 131 palabras
+en las tres particiones. La partición está guardada en el repositorio
+(\texttt{splits.csv}) y todos los modelos usan la misma.
 
 \subsection{Modelos}
-Se evalúan tres puntos de referencia y tres modelos profundos:
+Se comparan tres puntos de referencia y tres modelos profundos:
 \begin{itemize}
-  \item \textbf{Baselines triviales:} clase mayoritaria y predicción
+  \item \textit{Baselines triviales:} clase mayoritaria y predicción
   aleatoria estratificada (\texttt{DummyClassifier} de scikit-learn).
-  \item \textbf{Baseline clásico:} descriptores HOG \cite{dalal_hog_2005}
-  (9 orientaciones, bloques de $2\times2$ celdas, sobre $64\times64$) con
-  estandarización y regresión logística multinomial
-  \cite{pedregosa_sklearn_2011}. Como ablación del descriptor se entrena la
-  misma regresión sobre los 1\,024 píxeles crudos de $32\times32$.
-  \item \textbf{CNN simple} entrenada desde cero con tres bloques de dos
-  convoluciones $3\times3$ con \textit{batch normalization} y ReLU, seguidas
-  de \textit{max pooling} (32, 64 y 128 filtros), y una cabeza densa de 256
-  unidades con \textit{dropout} de 0.3 (846\,053 parámetros). Se entrena con
-  y sin aumento de datos para aislar su efecto.
-  \item \textbf{ResNet18} \cite{he_resnet_2016} preentrenada en ImageNet, con
-  entrada de $64\times64$ y la capa final es reemplazada por \textit{dropout} y una capa lineal de 133 salidas
-  (11.2\,M parámetros). Se ajusta la red completa.
-  \item \textbf{HCR-Net} \cite{hcrnet_2024}, el baseline de literatura:
-  VGG16 preentrenada en ImageNet hasta \texttt{block4\_conv2}, seguida de
-  \textit{batch normalization} y dos capas densas de 512 unidades con
-  \textit{batch normalization} y \textit{dropout} de 0.35 (9.8\,M parámetros
-  entrenables), con entrada de $32\times32$. Se entrena en dos fases: en la
-  primera la parte de VGG16 está congelada y en la segunda se ajusta todo.
+  \item \textit{Baseline clásico:} descriptores HOG \cite{dalal_hog_2005}
+  (9 orientaciones, bloques de $2\times2$ celdas, imágenes de $64\times64$)
+  con regresión logística multinomial \cite{pedregosa_sklearn_2011}. Para
+  medir cuánto aporta HOG, se entrena también la misma regresión sobre los
+  píxeles crudos de $32\times32$.
+  \item \textit{CNN simple}, entrenada desde cero: tres bloques de dos
+  convoluciones $3\times3$ con \textit{batch normalization} y ReLU, cada uno
+  seguido de \textit{max pooling} (32, 64 y 128 filtros), y una capa densa de
+  256 unidades con \textit{dropout} de 0.3 (0.85\,M parámetros). Se entrena
+  con y sin aumento de datos para medir el efecto del aumento.
+  \item \textit{ResNet18} \cite{he_resnet_2016} preentrenada en ImageNet, con
+  entrada de $64\times64$. La última capa se cambia por \textit{dropout} y una
+  capa lineal de 133 salidas (11.2\,M parámetros), y se ajusta toda la red.
+  \item \textit{HCR-Net} \cite{hcrnet_2024}, el baseline de literatura: VGG16
+  preentrenada en ImageNet hasta \texttt{block4\_conv2}, seguida de
+  \textit{batch normalization} y dos capas densas de 512 unidades, también
+  con \textit{batch normalization} y con \textit{dropout} de 0.35 (9.8\,M
+  parámetros), con entrada de $32\times32$. Se entrena en dos fases: primero
+  con VGG16 congelada y después ajustando todo.
 \end{itemize}
-ResNet18 y HCR-Net pertenecen a familias distintas y ambas parten de pesos preentrenados.
+ResNet18 y HCR-Net son los dos modelos preentrenados de familias distintas
+(residual y VGG) que se comparan como módulo adicional.
 
-\textbf{Framework.} Los modelos propios están en PyTorch, el framework del
-curso. HCR-Net se mantiene en TensorFlow/Keras porque su implementación
-oficial está en ese framework: reescribirla en PyTorch introduciría
-diferencias que dejarían de corresponder al método publicado, y el objetivo
-es reproducirlo como baseline de literatura. Para que la comparación sea
-justa, ambos frameworks leen los mismos archivos de datos y de partición,
-escriben las predicciones en el mismo formato y se evalúan con un único
-script.
+Los modelos propios están en PyTorch, el framework del curso. HCR-Net se dejó
+en TensorFlow/Keras porque su código oficial está en ese framework, y pasarlo
+a PyTorch habría cambiado detalles del método que se quiere reproducir. Para
+que la comparación sea justa, los dos frameworks leen los mismos archivos de
+datos y de partición, y sus predicciones se evalúan con el mismo script.
 
 \subsection{Aumento de datos}
-Se aplica solo al conjunto de entrenamiento, con los rangos de HCR-Net
+El aumento se aplica solo al entrenamiento y usa los rangos de HCR-Net
 \cite{hcrnet_2024}: rotación de $\pm10^\circ$, traslación de hasta 5\,\%,
-escala entre 0.95 y 1.05 y \textit{shear} de $0.5^\circ$. A esto se suma una
-distorsión elástica \cite{ly_training_2018} ($\alpha = s/2$,
-$\sigma = s/8$ para una imagen de lado $s$) con probabilidad 0.5. No se usan
-volteos, porque pueden convertir un glifo en otro. La Fig.~\ref{fig:augmentation_demo}
-muestra las transformaciones sobre un glifo del conjunto.
+escala entre 0.95 y 1.05 y \textit{shear} de $0.5^\circ$. Además, con
+probabilidad 0.5, se aplica una distorsión elástica \cite{ly_training_2018}
+($\alpha = s/2$, $\sigma = s/8$ para una imagen de lado $s$). No se usan
+volteos, porque pueden convertir un glifo en otro. La
+Fig.~\ref{fig:augmentation_demo} muestra estas transformaciones sobre un glifo
+del conjunto.
 
-En PyTorch se usan las transformaciones de \texttt{torchvision} y en HCR-Net
-el \texttt{ImageDataGenerator} de Keras del código oficial, que no trae
-distorsión elástica. Por eso HCR-Net se evalúa en tres variantes: sin
-aumento, con el aumento oficial y con el aumento oficial más una distorsión
-elástica implementada con los mismos parámetros que en PyTorch.
+En PyTorch el aumento se hace con \texttt{torchvision}, y en HCR-Net con el
+\texttt{ImageDataGenerator} de Keras del código oficial, que no incluye
+distorsión elástica. Por eso HCR-Net se prueba en tres variantes: sin aumento,
+con el aumento oficial y con el aumento oficial más la distorsión elástica,
+implementada con los mismos parámetros que en PyTorch.
 
 \begin{figure*}[t]
 \centering
@@ -560,69 +569,74 @@ distorsión elástica \cite{ly_training_2018}.}
 \end{figure*}
 
 \subsection{Entrenamiento}
-Los modelos de PyTorch se entrenan con AdamW (\textit{weight decay}
-$10^{-4}$), entropía cruzada y una tasa de aprendizaje que se reduce a la
-mitad cuando el macro-F1 de validación no mejora en 3 épocas, con un máximo
-de 60 épocas. HCR-Net conserva la configuración oficial: RMSprop, lotes de
-32, fase 1 de 30 épocas sin aumento o 10 con aumento (tasa $10^{-4}$ durante
-5 épocas y luego $5\times10^{-5}$) y fase 2 de 20 o 50 épocas (5 épocas de
+Los modelos de PyTorch usan entropía cruzada y AdamW con \textit{weight decay}
+de $10^{-4}$, con un máximo de 60 épocas; la tasa de aprendizaje se reduce a
+la mitad si el macro-F1 de validación no mejora en 3 épocas. HCR-Net mantiene
+su configuración oficial: RMSprop con lotes de 32 y dos fases. La primera dura
+30 épocas sin aumento o 10 con aumento (tasa de $10^{-4}$ las primeras 5
+épocas y $5\times10^{-5}$ después), y la segunda 20 o 50 épocas (5 de
 calentamiento a $10^{-7}$, luego $5\times10^{-6}$ y $10^{-6}$ en las últimas
 5).
 
-\textbf{Parada temprana.} En todos los modelos, después de cada época se
-calcula el macro-F1 de validación a nivel de palabra; el entrenamiento se
-detiene tras 8 épocas sin mejora y se restauran los pesos de la mejor época
-de validación. En HCR-Net la paciencia de la fase 2 empieza a contar después
-del calentamiento.
+Todos los modelos usan la misma parada temprana: después de cada época se
+calcula el macro-F1 de validación a nivel de palabra, el entrenamiento se
+detiene tras 8 épocas sin mejora y se recuperan los pesos de la mejor época.
+En HCR-Net, la paciencia de la segunda fase empieza a contar después del
+calentamiento.
 
-\textbf{Búsqueda de hiperparámetros.} Se realizó una búsqueda en grilla con
-una semilla, evaluada solo en validación. Se
-exploraron la tasa de aprendizaje y el tamaño de lote, por ser los que más
-afectan la convergencia, y en ResNet18 además si conviene congelar la red durante las
-primeras 3 épocas y entrenar solo la última capa. En las dos variantes de la
-CNN se probaron tasas de $\{3\cdot10^{-4}, 10^{-3}, 3\cdot10^{-3}\}$ y lotes
-de $\{64, 128\}$, y en ResNet18 tasas de $\{10^{-4}, 3\cdot10^{-4},
-10^{-3}\}$ con y sin las 3 épocas congeladas, con lote de 64. Se eligió una
-tasa de $10^{-3}$ en ambos modelos, con lote de 128 en la CNN y, en
-ResNet18, entrenando la red completa desde el inicio. El \textit{weight decay} y
-el \textit{dropout} se fijaron en valores habituales. La búsqueda se detuvo
-en esa grilla porque las mejores configuraciones de cada modelo difieren en
-menos de 0.002 de macro-F1 del orden de la variación entre semillas. Las 18 corridas tomaron 72 minutos. HCR-Net no se incluye en la búsqueda, sino que se reproduce con su
-configuración publicada, como corresponde a un baseline de literatura. En el
-baseline clásico se eligieron, también por macro-F1 de validación, el tamaño
-de celda de HOG ($\{4, 8, 16\}$ píxeles) y la regularización $C$ de la
-regresión ($10^{-3}$ a $10^{2}$); resultó una celda de 8 píxeles y $C=1$.
+Los hiperparámetros se eligieron con una búsqueda en grilla con una sola
+semilla, evaluada en validación. Se exploraron la tasa de aprendizaje y el
+tamaño de lote, que son los que más afectan la convergencia, y en ResNet18
+también si convenía congelar la red durante las primeras 3 épocas y entrenar
+solo la última capa. En la CNN, con y sin aumento, se probaron tasas de
+$\{3\cdot10^{-4}, 10^{-3}, 3\cdot10^{-3}\}$ y lotes de $\{64, 128\}$; en
+ResNet18, tasas de $\{10^{-4}, 3\cdot10^{-4}, 10^{-3}\}$ con y sin congelar,
+con lote de 64. Las 18 corridas tomaron 72 minutos. El \textit{weight decay}
+y el \textit{dropout} se dejaron en valores habituales. No se amplió la grilla
+porque, en cada modelo, las mejores configuraciones quedaron a menos de 0.5
+puntos de macro-F1 entre sí (0.12 en ResNet18), del mismo orden que la
+variación entre semillas. HCR-Net no entra en la búsqueda: como baseline de
+literatura, se reproduce con su configuración publicada. En el baseline
+clásico se eligieron, también con validación, el tamaño de celda de HOG
+($\{4, 8, 16\}$ píxeles) y la regularización $C$ de la regresión (de
+$10^{-3}$ a $10^{2}$); resultaron una celda de 8 píxeles y $C=1$. Los
+resultados de la búsqueda están en la Sección~\ref{sec:results}.
 
 \subsection{Protocolo de evaluación}
-Cada modelo profundo se entrena con 5 semillas (0 a 4) usando la
-configuración elegida, y se reporta la media y la desviación estándar. El
-conjunto de prueba se predice una sola vez, con los pesos de la mejor época
-de validación, después de fijar todas las decisiones. Las métricas son:
-(i) macro-F1, métrica principal y criterio de selección, porque el
-número de imágenes por palabra varía entre 52 y 133 y así cada palabra pesa
-lo mismo; (ii) exactitud \textit{top-1}, para comparar con la literatura;
-(iii) exactitud \textit{top-3} y \textit{top-5}, útiles cuando hay glifos muy parecidos; y (iv) la matriz de confusión y los pares más
-confundidos, para el análisis de errores. Además se registran los
-parámetros, el tiempo de entrenamiento y el tiempo de inferencia por imagen,
-para el análisis \textbf{tradeoff}.
+Con la configuración elegida, cada modelo profundo se entrena con 5 semillas
+(0 a 4) y se reportan la media y la desviación estándar. El conjunto de prueba
+se evalúa una sola vez, al final, con los pesos de la mejor época de
+validación. La métrica principal, y la que se usa para seleccionar, es el
+macro-F1: como cada palabra tiene entre 52 y 133 imágenes, así todas pesan lo
+mismo. También se reportan la exactitud \textit{top-1}, para comparar con la
+literatura, y la \textit{top-3} y \textit{top-5}, que muestran si la respuesta
+correcta queda cerca cuando hay glifos parecidos. Los errores se analizan con
+la matriz de confusión y los pares más confundidos. Para comparar costos se
+registran los parámetros, el tiempo de entrenamiento y el tiempo de
+inferencia por imagen.
 
 Para la explicabilidad se aplica Grad-CAM \cite{selvaraju_gradcam_2017} a la
-última capa convolucional de cada modelo (el último bloque en la CNN,
+última capa convolucional de cada modelo (\texttt{relu3} en la CNN,
 \texttt{layer3} y \texttt{layer4} en ResNet18 y \texttt{block4\_conv2} en
 HCR-Net), sobre los aciertos con mayor y menor confianza y los errores con
 mayor confianza del conjunto de prueba.
 
 \subsection{Hardware y reproducibilidad}
-Todo se ejecutó en una sola máquina, un Apple M4 Pro (14 núcleos, 24\,GB de
-memoria). PyTorch 2.14 usó la GPU integrada (MPS); TensorFlow 2.21 no tiene
-soporte para esa GPU, por lo que HCR-Net se entrenó en CPU. El experimento
+Todo se corrió en una computadora con Apple M4 Pro (14 núcleos, 24\,GB de
+memoria). PyTorch 2.14 usó la GPU integrada (MPS), pero TensorFlow 2.21 no
+tiene soporte para esa GPU, así que HCR-Net se entrenó en CPU. El experimento
 completo (baselines, búsqueda y 30 corridas finales) tomó 5.2 horas. El
-repositorio incluye las versiones exactas de las dependencias, los archivos
-de partición, un script que ejecuta todo en orden y los registros de cada
-corrida con su configuración, semilla, tiempos e historial por época.
+repositorio incluye las versiones de las dependencias, la partición, un
+script que corre todo en orden y el registro de cada corrida (configuración,
+semilla, tiempos e historial por época).
 
 \subsection{Cambios respecto a la propuesta}
-Por cuestiones de tiempo y alcance, se hace el descarte de la expansión sintética con fuentes, así como de la evaluación de RLR, los aumentos específicos por glifo y la clasificación \textit{open-set} para \textit{jaki}. En consecuencia, la segunda hipótesis (la combinación balanceada de aumento débil y expansión sintética) no se evalúa en este trabajo. Contrario a lo planteado, se decidió no binarizar porque el fondo ya se encontraba limpio y la binarización borraría trazos débiles. Además, se hace la ejecución en una máquina local debido a las limitaciones de uso de Google Colab. 
+Por tiempo y alcance, se descartaron la expansión sintética con fuentes, la
+evaluación de RLR, los aumentos específicos por glifo y la clasificación
+\textit{open-set} para \textit{jaki}; por eso, la segunda hipótesis no se
+evalúa en este trabajo. A diferencia de lo propuesto, las imágenes no se
+binarizaron (ver Preprocesamiento), y todo se ejecutó en una máquina local
+por los límites de uso de Google Colab.
 
 
 % =====================================================
